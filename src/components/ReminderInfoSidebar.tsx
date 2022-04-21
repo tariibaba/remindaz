@@ -1,9 +1,11 @@
 import {
   AccessAlarm,
+  ArrowRight,
   CalendarToday,
   Close,
   EventRepeat,
   Refresh,
+  KeyboardArrowRight,
 } from '@mui/icons-material';
 import {
   Button,
@@ -14,6 +16,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Paper,
   TextField,
 } from '@mui/material';
 import { format } from 'date-fns';
@@ -39,6 +42,7 @@ const ReminderInfoSidebar = () => {
 
   useEffect(() => {
     setTitleInputValue(reminder?.title);
+    setNoteTextFieldValue(reminder?.note!);
   }, [state.sidebarReminderInfo]);
 
   const onTitleInputChange = (event) => {
@@ -139,6 +143,16 @@ const ReminderInfoSidebar = () => {
 
   const removeTimeRepeatButtonClick = (event) => {
     state.editReminder(reminder?.id!, { timeRepeat: undefined });
+  };
+
+  const [noteTextFieldValue, setNoteTextFieldValue] = useState<string>(
+    reminder?.note!
+  );
+  const onNoteTextFieldChange = (event) => {
+    setNoteTextFieldValue(event.target.value);
+  };
+  const onNoteTextFieldBlur = () => {
+    state.editReminder(reminder?.id!, { note: noteTextFieldValue });
   };
 
   return (
@@ -244,7 +258,26 @@ const ReminderInfoSidebar = () => {
             </ListItem>
           </List>
         </div>
-        <TextField />
+        <TextField
+          placeholder="Note"
+          multiline={true}
+          onBlur={onNoteTextFieldBlur}
+          onChange={onNoteTextFieldChange}
+          value={noteTextFieldValue}
+        />
+        <div style={{ marginTop: 'auto' }}>
+          <Button
+            sx={{
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'flex-start',
+              marginTop: 'auto',
+            }}
+            onClick={() => state.hideSidebarReminderInfo()}
+          >
+            <KeyboardArrowRight />
+          </Button>
+        </div>
       </div>
       <ReminderDatePicker
         popoverProps={{

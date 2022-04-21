@@ -26,12 +26,10 @@ import {
 } from 'date-fns';
 
 const dataPath = ipcRenderer.sendSync('getUserDataPath');
-console.log(`node env: ${process.env.NODE_ENV}`);
 
 const filename =
   process.env.NODE_ENV === 'production' ? 'data.json' : 'dev_data.json';
 const filePath = path.join(dataPath, filename);
-console.log(filePath);
 
 export class AppState {
   reminderIds: string[] = [];
@@ -76,6 +74,13 @@ export class AppState {
     await this.loadState();
     this.startNotificationCheck();
     this.updateWindowBadge();
+    ipcRenderer.on('load-window-mode', (event, args) => {
+      this.loadWindowMode(args.miniMode);
+    });
+    ipcRenderer.on('refresh-app-state', () => {
+      this.loadState();
+    });
+    ipcRenderer.invoke('react-load');
   }
 
   updateWindowBadge() {
@@ -113,25 +118,46 @@ export class AppState {
   }
 
   startNotificationCheck() {
+    const devInterval = 10000;
+    const interval =
+      process.env.NODE_ENV === 'production' ? 60000 : devInterval;
     setInterval(() => {
       const now = toNearestMinute(new Date());
       this.reminderIds
         .map((id) => this.allReminders[id])
+        .filter((reminder) => !reminder.reminded)
         .forEach((reminder, index) => {
           const date = toNearestMinute(reminder.remindTime);
-          if (date.getTime() <= now.getTime() && !reminder.reminded) {
+          const snoozeRemindTime =
+            reminder.snoozeRemindTime &&
+            toNearestMinute(reminder.snoozeRemindTime!);
+          if (
+            (!snoozeRemindTime && date.getTime() <= now.getTime()) ||
+            (snoozeRemindTime && snoozeRemindTime.getTime() <= now.getTime())
+          ) {
             ipcRenderer
               .invoke('notify', {
                 type: 'reminder',
                 title: reminder.title,
               })
-              .then((value) => {
-                console.log('Reminder complete');
-                this.reminderComplete(reminder.id);
+              .then(({ acknowledged }) => {
+                if (acknowledged) {
+                  this.reminderComplete(reminder.id);
+                } else {
+                  this.snoozeReminder(reminder.id);
+                }
               });
           }
         });
-    }, 60000); // TODO: change back to 1 minute
+    }, interval);
+  }
+
+  snoozeReminder(id: string): void {
+    runInAction(() => {
+      const reminder = this.allReminders[id];
+      reminder.snoozeRemindTime = new Date(addMinutes(new Date(), 5));
+    });
+    this.saveState();
   }
 
   reminderComplete(id: string): void {
@@ -240,6 +266,7 @@ export class AppState {
         | 'startDate'
         | 'dayRepeat'
         | 'timeRepeat'
+        | 'note'
       >
     >
   ) {

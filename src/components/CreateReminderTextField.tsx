@@ -14,6 +14,7 @@ import {
   Typography,
 } from '@mui/material';
 import {
+  addDays,
   addHours,
   format,
   getHours,
@@ -34,13 +35,15 @@ import ReminderTimeRepeatPicker from './ReminderTimeRepeatPicker';
 import getReadableDay from '../utils/readable-date';
 
 function getDefaultNewReminder(): Omit<Reminder, 'id'> {
+  const date = addDays(new Date(), 1);
+  date.setHours(0, 0, 0, 0);
   return {
-    startDate: new Date(),
-    startTime: addHours(new Date(), 1),
+    startDate: new Date(date),
+    startTime: new Date(date),
     title: '',
     dayRepeat: undefined,
     reminded: false,
-    remindTime: addHours(new Date(), 1),
+    remindTime: new Date(date),
     timeRepeat: undefined,
   };
 }
@@ -169,11 +172,12 @@ const CreateReminderTextField = observer(() => {
   return (
     <>
       <TextField
+        className="create-reminder-text-field"
         variant="outlined"
         placeholder="Add new reminder"
         sx={{ marginTop: 'auto', width: '100%' }}
         onKeyDown={handleKeyDown}
-        value={newReminder?.title}
+        value={newReminder?.title || ''}
         onChange={onInputChange}
         InputProps={{
           endAdornment: (

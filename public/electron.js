@@ -14,6 +14,7 @@ const { Tray, Menu } = require('electron/main');
 const {
   default: installExtension,
   REACT_DEVELOPER_TOOLS,
+  MOBX_DEVTOOLS,
 } = require('electron-devtools-installer');
 
 electronRemote.initialize();
@@ -34,16 +35,18 @@ if (app.isPackaged) {
     });
     app.whenReady().then(createWindow);
   } else {
+    isAppQuiting = true;
     app.quit();
   }
 } else {
-  isAppQuiting = true;
   app.whenReady().then(createWindow);
-  app.whenReady().then(() => {
-    installExtension(REACT_DEVELOPER_TOOLS)
-      .then((name) => console.log(`Added extension:  ${name}`))
-      .catch((err) => console.log('An error occurred: ', err));
-  });
+  app.whenReady().then(() => installExtensions());
+}
+
+async function installExtensions() {
+  const errCallback = (err) =>
+    console.error(`An error occurred: ${JSON.stringify(err)}`);
+  await installExtension(REACT_DEVELOPER_TOOLS).catch(errCallback);
 }
 
 function createWindow() {
@@ -55,9 +58,6 @@ function createWindow() {
       contextIsolation: false,
     },
   });
-  mainWindow.webContents.executeJavaScript(
-    `console.log('electron node env: ${process.env.NODE_ENV}');`
-  );
   badge = new Badge(mainWindow, {
     color: '#0078D4',
     font: '100 10px "Segoe UI"',
@@ -70,6 +70,9 @@ function createWindow() {
   if (app.isPackaged) {
     globalShortcut.register('CommandOrControl+R', () => {});
     mainWindow.setMenu(null);
+  } else {
+    mainWindow.maximize();
+    mainWindow.webContents.openDevTools();
   }
   mainWindow.loadURL(app.isPackaged ? indexHtmlUrl : 'http://localhost:3000');
   mainWindow.on('close', (event) => {
@@ -97,9 +100,16 @@ ipcMain.handle('notify', (event, args) => {
   return new Promise((resolve, reject) => {
     const { type, title } = args;
     if (type === 'reminder') {
-      notifier.notify(title, (err, resp) => {
-        resolve(true);
-      });
+      notifier.notify(
+        { title, message: ' ', actions: ['I remember'], wait: true },
+        (err, res, metadata) => {
+          const acknowledged = metadata.activationType === 'I remember';
+          if (metadata.activationType === 'clicked') {
+            getActiveWindow().show();
+          }
+          resolve({ acknowledged });
+        }
+      );
     }
   });
 });
@@ -118,6 +128,7 @@ function initTray() {
   ]);
   tray.on('click', () => {
     getActiveWindow().show();
+    getActiveWindow().webContents.send('refresh-app-state');
   });
   tray.setContextMenu(contextMenu);
 }

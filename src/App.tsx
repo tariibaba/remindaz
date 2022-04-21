@@ -21,14 +21,6 @@ const App = observer(() => {
 
   useEffect(() => {
     state.init();
-    ipcRenderer.on('load-window-mode', (event, args) => {
-      console.log('loading window mode');
-      state.loadWindowMode(args.miniMode);
-    });
-    ipcRenderer.on('refresh-app-state', () => {
-      state.loadState();
-    });
-    ipcRenderer.invoke('react-load');
   }, []);
 
   let WindowView = state.miniMode ? MiniWindowView : DefaultWindowView;

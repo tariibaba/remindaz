@@ -39,6 +39,7 @@ const MainView = observer(() => {
           return (
             <ListItem key={id}>
               <ListItemButton
+                className="reminder-list-item"
                 sx={{
                   border: '1px solid #c0c0c0',
                   borderRadius: '5px',
@@ -54,7 +55,7 @@ const MainView = observer(() => {
                     fontWeight: 'normal',
                   },
                 }}
-                onClick={() => {
+                onClick={(event) => {
                   state.toggleSidebarReminderInfo(id);
                 }}
               >

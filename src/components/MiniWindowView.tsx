@@ -19,7 +19,6 @@ function endMiniMode() {
 
 const MiniMode = observer(() => {
   const state = useContext(AppStateContext)!;
-  console.log(`reminder count: ${state.reminderIds.length}`);
   const now = new Date();
   return (
     <div className="MiniMode">
