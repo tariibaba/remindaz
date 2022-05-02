@@ -1,6 +1,6 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import { v4 } from 'uuid';
-import { Reminder } from './types';
+import { Reminder, ReminderGroup, ReminderGroups } from './types';
 import { ipcRenderer } from 'electron';
 import fs from 'fs/promises';
 import path from 'path';
@@ -24,6 +24,7 @@ import {
   getHours,
   getMinutes,
 } from 'date-fns';
+import isDefaultReminderGroup from 'utils/is-tag';
 
 const dataPath = ipcRenderer.sendSync('getUserDataPath');
 
@@ -37,19 +38,31 @@ export class AppState {
   miniMode?: boolean;
   sidebarReminderInfo?: string;
   sidebarReminderInfoVisible: boolean = false;
+  tagNames: string[] = [];
+  allTags: Record<string, string[]> = {};
+  selectedGroup: string = 'all';
+  query: string = '';
 
   constructor() {
     makeAutoObservable(this);
   }
 
-  async createReminder(reminder: Omit<Reminder, 'id'>) {
+  createReminder(reminder: Omit<Reminder, 'id'>): { id: string } {
     const id = v4();
     runInAction(() => {
       this.reminderIds.push(id);
-      this.allReminders[id] = { id, ...reminder };
+      this.allReminders[id] = {
+        id,
+        ...reminder,
+        tags: [],
+      };
+      if (!isDefaultReminderGroup(this.selectedGroup)) {
+        this._putTag(id, this.selectedGroup);
+      }
     });
-    await this.saveState();
+    this.saveState();
     this.updateWindowBadge();
+    return { id };
   }
 
   async deleteReminder(reminderId: string): Promise<void> {
@@ -65,9 +78,21 @@ export class AppState {
     const data = {
       reminderIds: this.reminderIds,
       allReminders: this.allReminders,
+      allTags: this.allTags,
+      tagNames: this.tagNames,
     };
     const jsonString = JSON.stringify(data, null, 2);
     await fs.writeFile(filePath, jsonString);
+  }
+
+  private _putTag(reminderId: string, tag: string): void {
+    const reminder = this.allReminders[reminderId];
+    reminder.tags.push(tag);
+    if (!this.allTags[tag]) {
+      this.tagNames.push(tag);
+      this.allTags[tag] = [];
+    }
+    this.allTags[tag].push(reminderId);
   }
 
   async init() {
@@ -111,6 +136,8 @@ export class AppState {
       runInAction(() => {
         this.reminderIds = data.reminderIds;
         this.allReminders = data.allReminders;
+        this.tagNames = data.tagNames;
+        this.allTags = data.allTags;
       });
     } catch {
       await this.saveState();
@@ -130,7 +157,7 @@ export class AppState {
           const date = toNearestMinute(reminder.remindTime);
           const snoozeRemindTime =
             reminder.snoozeRemindTime &&
-            toNearestMinute(reminder.snoozeRemindTime!);
+            toNearestMinute(new Date(reminder.snoozeRemindTime!));
           if (
             (!snoozeRemindTime && date.getTime() <= now.getTime()) ||
             (snoozeRemindTime && snoozeRemindTime.getTime() <= now.getTime())
@@ -155,7 +182,7 @@ export class AppState {
   snoozeReminder(id: string): void {
     runInAction(() => {
       const reminder = this.allReminders[id];
-      reminder.snoozeRemindTime = new Date(addMinutes(new Date(), 5));
+      reminder.snoozeRemindTime = addMinutes(new Date(), 5);
     });
     this.saveState();
   }
@@ -210,7 +237,7 @@ export class AppState {
 
     if (nextRemindTime) {
       runInAction(() => {
-        this.createReminder({
+        const { id } = this.createReminder({
           title: reminder.title,
           dayRepeat: reminder.dayRepeat,
           note: reminder.note,
@@ -219,7 +246,11 @@ export class AppState {
           reminded: false,
           remindTime: nextRemindTime!,
           timeRepeat: reminder.timeRepeat,
+          tags: [],
         });
+        for (let tag of reminder.tags) {
+          this._putTag(id, tag);
+        }
       });
     }
     this.saveState();
@@ -285,6 +316,39 @@ export class AppState {
       }
     });
     this.saveState();
+  }
+
+  addTag(reminderId: string, tag: string): void {
+    runInAction(() => {
+      this._putTag(reminderId, tag);
+    });
+    this.saveState();
+  }
+
+  removeTag(reminderId: string, tag: string): void {
+    runInAction(() => {
+      const reminder = this.allReminders[reminderId];
+      reminder.tags = reminder.tags.filter(
+        (reminderTag) => reminderTag !== tag
+      );
+      if (this.allTags[tag].length - 1 === 0) {
+        this.tagNames = this.tagNames.filter((tagName) => tagName !== tag);
+        delete this.allTags[tag];
+      }
+    });
+    this.saveState();
+  }
+
+  changeQuery(query: string): void {
+    runInAction(() => {
+      this.query = query;
+    });
+  }
+
+  changeSelectedGroup(newGroup: string): void {
+    runInAction(() => {
+      this.selectedGroup = newGroup;
+    });
   }
 }
 

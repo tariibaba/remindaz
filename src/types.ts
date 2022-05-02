@@ -11,6 +11,7 @@ export type Reminder = {
   remindTime: Date;
   /** Time to remind when user didn't click button to acknowledge reminder. */
   snoozeRemindTime?: Date;
+  tags: string[];
 };
 
 export type WindowMode = 'default' | 'mini';
@@ -22,3 +23,12 @@ export type ReadableSeconds = { num: number; unit: SecondUnit };
 export const DayUnits = ['day', 'week', 'month', 'year'] as const;
 export type DayUnit = typeof DayUnits[number];
 export type ReadableDays = { num: number; unit: DayUnit };
+
+export const ReminderGroups = [
+  'overdue',
+  'today',
+  'tomorrow',
+  'later',
+  'all',
+] as const;
+export type ReminderGroup = typeof ReminderGroups[number];

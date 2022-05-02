@@ -13,17 +13,57 @@ import {
   ListItemButton,
   ListItemText,
 } from '@mui/material';
-import { format } from 'date-fns';
+import { differenceInDays, format, startOfDay } from 'date-fns';
 import { observer } from 'mobx-react';
 import React, { useContext } from 'react';
+import isDefaultReminderGroup from 'utils/is-tag';
 import { AppStateContext } from '../context';
+import { Reminder, ReminderGroup } from '../types';
 import getReadableDay from '../utils/readable-date';
 import * as readableDay from '../utils/readable-day';
 import * as readableSecond from '../utils/readable-second';
 
 const MainView = observer(() => {
   const state = useContext(AppStateContext)!;
-  const reminders = state.allReminders;
+  const reminders = state.reminderIds.map((id) => state.allReminders[id]);
+
+  let remindersToShow: Reminder[] = [];
+  const selectedGroup = state.selectedGroup;
+  const now = new Date();
+  if (isDefaultReminderGroup(selectedGroup)) {
+    const today = startOfDay(now);
+    switch (selectedGroup) {
+      case 'overdue':
+        remindersToShow = reminders.filter(
+          (reminder) => startOfDay(reminder.remindTime) < startOfDay(now)
+        );
+        break;
+      case 'today':
+        remindersToShow = reminders.filter(
+          (reminder) => startOfDay(reminder.remindTime) === startOfDay(now)
+        );
+        break;
+      case 'all':
+        remindersToShow = reminders;
+        break;
+      case 'tomorrow':
+        remindersToShow = reminders.filter(
+          (reminder) =>
+            differenceInDays(startOfDay(reminder.remindTime), today) === 1
+        );
+        break;
+      case 'later':
+        remindersToShow = reminders.filter(
+          (reminder) =>
+            differenceInDays(startOfDay(reminder.remindTime), today) > 1
+        );
+        break;
+    }
+  } else {
+    remindersToShow = reminders.filter((reminder) =>
+      reminder.tags.includes(selectedGroup)
+    );
+  }
 
   return (
     <div
@@ -34,8 +74,8 @@ const MainView = observer(() => {
       }}
     >
       <List>
-        {state.reminderIds.map((id) => {
-          const reminder = reminders[id];
+        {remindersToShow.map((reminder) => {
+          const id = reminder.id;
           return (
             <ListItem key={id}>
               <ListItemButton
@@ -61,7 +101,7 @@ const MainView = observer(() => {
               >
                 <div>
                   <ListItemText sx={{ fontWeight: 'normal !important' }}>
-                    {reminders[id].title}
+                    {reminder.title}
                   </ListItemText>
                   <div style={{ flexDirection: 'row', display: 'flex' }}>
                     <Chip
@@ -76,11 +116,11 @@ const MainView = observer(() => {
                       />
                     )}
                     <Chip
-                      label={format(reminders[id].remindTime, 'h:mm a')}
+                      label={format(reminder.remindTime, 'h:mm a')}
                       icon={<AccessAlarm />}
                       sx={{ marginLeft: '8px' }}
                     />
-                    {reminders[id].timeRepeat && (
+                    {reminder.timeRepeat && (
                       <Chip
                         label={readableSecond.getString(reminder.timeRepeat!)}
                         sx={{ marginLeft: '8px' }}
@@ -106,6 +146,9 @@ const MainView = observer(() => {
                         }
                       />
                     )}
+                    {reminder.tags.map((tag) => (
+                      <Chip label={tag} style={{ marginLeft: '8px' }} />
+                    ))}
                   </div>
                 </div>
                 <div style={{ marginLeft: 'auto' }}>

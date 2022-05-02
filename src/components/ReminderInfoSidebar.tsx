@@ -6,6 +6,7 @@ import {
   EventRepeat,
   Refresh,
   KeyboardArrowRight,
+  Add,
 } from '@mui/icons-material';
 import {
   Button,
@@ -18,6 +19,7 @@ import {
   ListItemText,
   Paper,
   TextField,
+  Typography,
 } from '@mui/material';
 import { format } from 'date-fns';
 import { observer } from 'mobx-react';
@@ -155,6 +157,34 @@ const ReminderInfoSidebar = () => {
     state.editReminder(reminder?.id!, { note: noteTextFieldValue });
   };
 
+  const [newTag, setNewTag] = useState<string>('');
+  const onTagTextFieldChange = (event) => {
+    setNewTag(event.target.value);
+  };
+
+  const onTagTextFieldKeydown = (event) => {
+    if (event.key === 'Enter') {
+      addTag();
+    }
+  };
+
+  const onTagTextFieldButtonClick = () => {
+    addTag();
+  };
+
+  const addTag = () => {
+    if (
+      !reminder?.tags.find((tag) => tag.toLowerCase() === newTag.toLowerCase())
+    ) {
+      state.addTag(reminder?.id!, newTag);
+    }
+    setNewTag('');
+  };
+
+  const removeTag = (tag: string) => {
+    state.removeTag(reminder?.id!, tag);
+  };
+
   return (
     <>
       <div
@@ -258,12 +288,55 @@ const ReminderInfoSidebar = () => {
             </ListItem>
           </List>
         </div>
+        <Typography>Tags</Typography>
+        <Paper
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            listStyle: 'none',
+            p: 0,
+            m: 0,
+          }}
+        >
+          {reminder?.tags?.length! > 0 ? (
+            reminder?.tags?.map((tag) => (
+              <Chip
+                key={tag}
+                label={tag}
+                sx={{ margin: 1 }}
+                onDelete={() => removeTag(tag)}
+              />
+            ))
+          ) : (
+            <Typography sx={{ margin: 1 }}>No tags</Typography>
+          )}
+        </Paper>
+        <TextField
+          placeholder="Add a tag"
+          variant="standard"
+          onChange={onTagTextFieldChange}
+          onKeyDown={onTagTextFieldKeydown}
+          InputProps={{
+            endAdornment: (
+              <IconButton
+                onClick={onTagTextFieldButtonClick}
+                style={{ visibility: newTag ? 'visible' : 'hidden' }}
+              >
+                <Add />
+              </IconButton>
+            ),
+          }}
+          disabled={reminder?.tags?.length === 5}
+          value={newTag}
+        />
         <TextField
           placeholder="Note"
           multiline={true}
           onBlur={onNoteTextFieldBlur}
           onChange={onNoteTextFieldChange}
           value={noteTextFieldValue}
+          sx={{ marginTop: 4 }}
+          rows={4}
         />
         <div style={{ marginTop: 'auto' }}>
           <Button

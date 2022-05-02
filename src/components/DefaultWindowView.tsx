@@ -1,35 +1,21 @@
-import {
-  List,
-  ListItem,
-  ListItemText,
-  ListItemButton,
-  Chip,
-  IconButton,
-  AppBar,
-  Toolbar,
-} from '@mui/material';
 import { observer } from 'mobx-react';
-import { useContext, useEffect } from 'react';
-import AccessAlarm from '@mui/icons-material/AccessAlarm';
+import { useContext, useState } from 'react';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
-import CalendarToday from '@mui/icons-material/CalendarToday';
-import { format } from 'date-fns';
 import { AppStateContext } from '../context';
 import React from 'react';
-import {
-  Delete,
-  EventRepeat,
-  Refresh,
-  PhotoSizeSelectSmall,
-} from '@mui/icons-material';
 import './DefaultWindowView.css';
 import CreateReminderTextField from './CreateReminderTextField';
 import MainView from './MainView';
 import AppToolbar from './AppToolbar';
 import ReminderInfoSidebar from './ReminderInfoSidebar';
+import LeftSidebar from './LeftSidebar';
+import { ReminderGroup, ReminderGroups } from 'types';
 
 const Main = () => {
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+  const state = useContext(AppStateContext)!;
+
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <div className="App">
@@ -41,10 +27,19 @@ const Main = () => {
             flex: 1,
           }}
         >
-          <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-            <AppToolbar />
-            <MainView />
-            <CreateReminderTextField />
+          <div style={{ display: 'flex', flex: 1 }}>
+            <LeftSidebar
+              open={sidebarOpen}
+              onClose={() => setSidebarOpen(false)}
+            />
+            <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+              <AppToolbar onSidebarOpen={() => setSidebarOpen(true)} />
+              <MainView />
+              {(state.selectedGroup === 'all' ||
+                !ReminderGroups.includes(
+                  state.selectedGroup as ReminderGroup
+                )) && <CreateReminderTextField />}
+            </div>
           </div>
           <ReminderInfoSidebar />
         </div>
