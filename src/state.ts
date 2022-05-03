@@ -1,6 +1,6 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import { v4 } from 'uuid';
-import { Reminder, ReminderGroup, ReminderGroups } from './types';
+import { Reminder, ReminderGroup, ReminderGroups, AppSettings } from './types';
 import { ipcRenderer } from 'electron';
 import fs from 'fs/promises';
 import path from 'path';
@@ -32,6 +32,12 @@ const filename =
   process.env.NODE_ENV === 'production' ? 'data.json' : 'dev_data.json';
 const filePath = path.join(dataPath, filename);
 
+type AppScreen = 'main' | 'settings';
+
+const defaultSettings: AppSettings = {
+  runAtStartup: true,
+};
+
 export class AppState {
   reminderIds: string[] = [];
   allReminders: Record<string, Reminder> = {};
@@ -42,6 +48,8 @@ export class AppState {
   allTags: Record<string, string[]> = {};
   selectedGroup: string = 'all';
   query: string = '';
+  screen: AppScreen = 'main';
+  appSettings?: AppSettings;
 
   constructor() {
     makeAutoObservable(this);
@@ -80,6 +88,7 @@ export class AppState {
       allReminders: this.allReminders,
       allTags: this.allTags,
       tagNames: this.tagNames,
+      appSettings: this.appSettings,
     };
     const jsonString = JSON.stringify(data, null, 2);
     await fs.writeFile(filePath, jsonString);
@@ -138,6 +147,7 @@ export class AppState {
         this.allReminders = data.allReminders;
         this.tagNames = data.tagNames;
         this.allTags = data.allTags;
+        this.appSettings = { ...defaultSettings, ...data.appSettings };
       });
     } catch {
       await this.saveState();
@@ -349,6 +359,20 @@ export class AppState {
     runInAction(() => {
       this.selectedGroup = newGroup;
     });
+  }
+
+  changeScreen(newScreen: AppScreen): void {
+    runInAction(() => {
+      this.screen = newScreen;
+    });
+  }
+
+  async setRunAtStartup(value: boolean): Promise<void> {
+    await ipcRenderer.invoke('change-run-at-startup', { value });
+    runInAction(() => {
+      this.appSettings!.runAtStartup = value;
+    });
+    this.saveState();
   }
 }
 

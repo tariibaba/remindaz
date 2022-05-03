@@ -2,6 +2,7 @@ import {
   Menu as MenuIcon,
   PhotoSizeSelectSmall,
   Search as SearchIcon,
+  Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { AppBar, Toolbar, IconButton, InputBase } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
@@ -34,7 +35,7 @@ const AppToolbar = (props: AppToolbarProps) => {
   return (
     <>
       <AppBar position="sticky">
-        <Toolbar color="white" sx={{ display: 'flex', flexDirection: 'row' }}>
+        <Toolbar sx={{ display: 'flex', flexDirection: 'row' }}>
           <IconButton
             onClick={() => onSidebarOpen()}
             color="inherit"
@@ -50,9 +51,18 @@ const AppToolbar = (props: AppToolbarProps) => {
           <IconButton
             onClick={() => startMiniMode()}
             color="inherit"
-            sx={{ marginLeft: 'auto' }}
+            edge="end"
+            sx={{ marginLeft: '16px' }}
           >
             <PhotoSizeSelectSmall />
+          </IconButton>
+          <IconButton
+            edge="end"
+            color="inherit"
+            onClick={() => state.changeScreen('settings')}
+            sx={{ marginLeft: '16px' }}
+          >
+            <SettingsIcon />
           </IconButton>
         </Toolbar>
       </AppBar>

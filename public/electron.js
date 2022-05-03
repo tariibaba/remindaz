@@ -193,3 +193,7 @@ function refreshAppState() {
 function getActiveWindow() {
   return miniMode ? miniWindow : mainWindow;
 }
+
+ipcMain.handle('change-run-at-startup', (event, { value }) => {
+  app.setLoginItemSettings({ openAtLogin: value, openAsHidden: value });
+});

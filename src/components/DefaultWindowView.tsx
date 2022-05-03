@@ -5,15 +5,10 @@ import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import { AppStateContext } from '../context';
 import React from 'react';
 import './DefaultWindowView.css';
-import CreateReminderTextField from './CreateReminderTextField';
-import MainView from './MainView';
-import AppToolbar from './AppToolbar';
-import ReminderInfoSidebar from './ReminderInfoSidebar';
-import LeftSidebar from './LeftSidebar';
-import { ReminderGroup, ReminderGroups } from 'types';
+import MainScreen from './main-screen';
+import SettingsScreen from './settings-screen';
 
 const Main = () => {
-  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const state = useContext(AppStateContext)!;
 
   return (
@@ -21,27 +16,23 @@ const Main = () => {
       <div className="App">
         <div
           style={{
-            display: 'flex',
-            flexDirection: 'row',
-            overflowY: 'hidden',
-            flex: 1,
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            display: state.screen === 'main' ? 'block' : 'none',
           }}
         >
-          <div style={{ display: 'flex', flex: 1 }}>
-            <LeftSidebar
-              open={sidebarOpen}
-              onClose={() => setSidebarOpen(false)}
-            />
-            <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-              <AppToolbar onSidebarOpen={() => setSidebarOpen(true)} />
-              <MainView />
-              {(state.selectedGroup === 'all' ||
-                !ReminderGroups.includes(
-                  state.selectedGroup as ReminderGroup
-                )) && <CreateReminderTextField />}
-            </div>
-          </div>
-          <ReminderInfoSidebar />
+          <MainScreen />
+        </div>
+        <div
+          style={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            display: state.screen === 'settings' ? 'block' : 'none',
+          }}
+        >
+          <SettingsScreen />
         </div>
       </div>
     </LocalizationProvider>

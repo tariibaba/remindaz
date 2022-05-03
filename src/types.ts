@@ -32,3 +32,7 @@ export const ReminderGroups = [
   'all',
 ] as const;
 export type ReminderGroup = typeof ReminderGroups[number];
+
+export type AppSettings = {
+  runAtStartup: boolean;
+};
