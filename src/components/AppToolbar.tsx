@@ -4,7 +4,7 @@ import {
   Search as SearchIcon,
 } from '@mui/icons-material';
 import { AppBar, Toolbar, IconButton, InputBase } from '@mui/material';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ipcRenderer } from 'electron';
 import SearchBar from './SearchBar';
 import { AppStateContext } from '../context';
@@ -22,6 +22,14 @@ const AppToolbar = (props: AppToolbarProps) => {
   const state = useContext(AppStateContext)!;
 
   const [query, setQuery] = useState<string>('');
+  const [willSearch, setWillSearch] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (willSearch) {
+      state.changeQuery(query);
+      setWillSearch(false);
+    }
+  }, [query]);
 
   return (
     <>
@@ -37,7 +45,7 @@ const AppToolbar = (props: AppToolbarProps) => {
           <SearchBar
             query={query}
             onChange={(newQuery) => setQuery(newQuery)}
-            onSearch={() => state.changeQuery(query!)}
+            onSearch={() => setWillSearch(true)}
           />
           <IconButton
             onClick={() => startMiniMode()}

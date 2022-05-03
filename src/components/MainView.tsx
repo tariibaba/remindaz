@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { differenceInDays, format, startOfDay } from 'date-fns';
 import { observer } from 'mobx-react';
-import React, { useContext } from 'react';
+import React, { useContext, useRef } from 'react';
 import isDefaultReminderGroup from 'utils/is-tag';
 import { AppStateContext } from '../context';
 import { Reminder, ReminderGroup } from '../types';
@@ -30,6 +30,7 @@ const MainView = observer(() => {
   let remindersToShow: Reminder[] = [];
   const selectedGroup = state.selectedGroup;
   const now = new Date();
+
   if (isDefaultReminderGroup(selectedGroup)) {
     const today = startOfDay(now);
     switch (selectedGroup) {
@@ -65,6 +66,19 @@ const MainView = observer(() => {
     );
   }
 
+  const trimmedQuery = state.query.trim();
+  const queryWords = trimmedQuery && trimmedQuery.split(' ');
+  if (queryWords) {
+    remindersToShow = remindersToShow.filter((reminder) => {
+      const titleWords = reminder.title.split(' ');
+      return queryWords.every((queryWord) => {
+        return titleWords.some(
+          (titleWord) => titleWord.search(queryWord) !== -1
+        );
+      });
+    });
+  }
+
   return (
     <div
       style={{
@@ -79,7 +93,7 @@ const MainView = observer(() => {
           return (
             <ListItem key={id}>
               <ListItemButton
-                className="reminder-list-item"
+                className={`reminder-list-item reminder-${id}`}
                 sx={{
                   border: '1px solid #c0c0c0',
                   borderRadius: '5px',
@@ -101,7 +115,17 @@ const MainView = observer(() => {
               >
                 <div>
                   <ListItemText sx={{ fontWeight: 'normal !important' }}>
-                    {reminder.title}
+                    <span
+                      dangerouslySetInnerHTML={{
+                        __html: queryWords
+                          ? queryWords.reduce(
+                              (title, word) =>
+                                title.replace(word, `<b>${word}</b>`),
+                              reminder.title
+                            )
+                          : reminder.title,
+                      }}
+                    />
                   </ListItemText>
                   <div style={{ flexDirection: 'row', display: 'flex' }}>
                     <Chip
