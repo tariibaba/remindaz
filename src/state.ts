@@ -341,10 +341,6 @@ export class AppState {
       reminder.tags = reminder.tags.filter(
         (reminderTag) => reminderTag !== tag
       );
-      if (this.allTags[tag].length - 1 === 0) {
-        this.tagNames = this.tagNames.filter((tagName) => tagName !== tag);
-        delete this.allTags[tag];
-      }
     });
     this.saveState();
   }
