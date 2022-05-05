@@ -17,6 +17,7 @@ import { differenceInDays, format, startOfDay } from 'date-fns';
 import { observer } from 'mobx-react';
 import React, { useContext, useRef } from 'react';
 import isDefaultReminderGroup from 'utils/is-tag';
+import removeDuplicateSubstrings from 'utils/remove-duplicate-substrings';
 import { AppStateContext } from '../context';
 import { Reminder, ReminderGroup } from '../types';
 import getReadableDay from '../utils/readable-date';
@@ -118,9 +119,12 @@ const MainView = observer(() => {
                     <span
                       dangerouslySetInnerHTML={{
                         __html: queryWords
-                          ? queryWords.reduce(
+                          ? removeDuplicateSubstrings(queryWords).reduce(
                               (title, word) =>
-                                title.replace(word, `<b>${word}</b>`),
+                                title.replace(
+                                  word,
+                                  `<span style="background-color:#3FD2E2">${word}</span>`
+                                ),
                               reminder.title
                             )
                           : reminder.title,
@@ -171,7 +175,11 @@ const MainView = observer(() => {
                       />
                     )}
                     {reminder.tags.map((tag) => (
-                      <Chip label={tag} style={{ marginLeft: '8px' }} />
+                      <Chip
+                        key={tag}
+                        label={tag}
+                        style={{ marginLeft: '8px' }}
+                      />
                     ))}
                   </div>
                 </div>
