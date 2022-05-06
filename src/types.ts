@@ -7,7 +7,7 @@ export type Reminder = {
   dayRepeat?: ReadableDays;
   /** Amount of seconds before repeating in the same day. */
   timeRepeat?: ReadableSeconds;
-  reminded: boolean;
+  stopped: boolean;
   remindTime: Date;
   /** Time to remind when user didn't click button to acknowledge reminder. */
   snoozeRemindTime?: Date;

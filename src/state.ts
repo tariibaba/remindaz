@@ -124,7 +124,7 @@ export class AppState {
       this.reminderIds.filter((id) => {
         const reminder = this.allReminders[id];
         return (
-          !reminder.reminded &&
+          !reminder.stopped &&
           (reminder.remindTime.getTime() < now.getTime() ||
             isToday(reminder.remindTime))
         );
@@ -162,7 +162,7 @@ export class AppState {
       const now = toNearestMinute(new Date());
       this.reminderIds
         .map((id) => this.allReminders[id])
-        .filter((reminder) => !reminder.reminded)
+        .filter((reminder) => !reminder.stopped)
         .forEach((reminder, index) => {
           const date = toNearestMinute(reminder.remindTime);
           const snoozeRemindTime =
@@ -172,16 +172,19 @@ export class AppState {
             (!snoozeRemindTime && date.getTime() <= now.getTime()) ||
             (snoozeRemindTime && snoozeRemindTime.getTime() <= now.getTime())
           ) {
+            this.recurReminder(reminder);
             ipcRenderer
               .invoke('notify', {
                 type: 'reminder',
                 title: reminder.title,
               })
-              .then(({ acknowledged }) => {
-                if (acknowledged) {
-                  this.reminderComplete(reminder.id);
+              .then(({ stopReminder }) => {
+                console.log(`stopReminder: ${stopReminder}`);
+                if (stopReminder) {
+                  this.stopReminder(reminder.id);
                 } else {
                   this.snoozeReminder(reminder.id);
+                  this.saveState();
                 }
               });
           }
@@ -194,20 +197,15 @@ export class AppState {
       const reminder = this.allReminders[id];
       reminder.snoozeRemindTime = addMinutes(new Date(), 5);
     });
-    this.saveState();
   }
 
-  reminderComplete(id: string): void {
-    const reminder = this.allReminders[id];
-    runInAction(() => {
-      reminder.reminded = true;
-    });
-
-    // Ensure next remind time for recurring reminders is in the future
+  recurReminder(reminder: Reminder): void {
     const now = new Date();
     let remindTime = reminder.remindTime;
     const timeRepeat = reminder.timeRepeat;
+
     if (reminder.timeRepeat) {
+      // Ensure next remind time for recurring reminders is in the future
       do {
         switch (timeRepeat?.unit) {
           case 'minute':
@@ -253,7 +251,7 @@ export class AppState {
           note: reminder.note,
           startDate: reminder.startDate,
           startTime: reminder.startTime,
-          reminded: false,
+          stopped: false,
           remindTime: nextRemindTime!,
           timeRepeat: reminder.timeRepeat,
           tags: [],
@@ -263,6 +261,24 @@ export class AppState {
         }
       });
     }
+
+    this.saveState();
+  }
+
+  stopReminder(reminderId: string): void {
+    const reminder = this.allReminders[reminderId];
+    runInAction(() => {
+      reminder.stopped = true;
+    });
+
+    this.saveState();
+  }
+
+  continueReminder(reminderId: string): void {
+    runInAction(() => {
+      this.allReminders[reminderId].stopped = false;
+    });
+    this.snoozeReminder(reminderId);
     this.saveState();
   }
 

@@ -41,7 +41,7 @@ const MiniMode = observer(() => {
           .map((id) => state.allReminders[id])
           .filter(
             (reminder) =>
-              !reminder.reminded &&
+              !reminder.stopped &&
               (isToday(reminder.remindTime) || reminder.remindTime < now)
           )
           .sort(

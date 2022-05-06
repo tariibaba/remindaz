@@ -101,13 +101,13 @@ ipcMain.handle('notify', (event, args) => {
     const { type, title } = args;
     if (type === 'reminder') {
       notifier.notify(
-        { title, message: ' ', actions: ['I remember'], wait: true },
+        { title, message: ' ', actions: ['Stop reminder'], wait: true },
         (err, res, metadata) => {
-          const acknowledged = metadata.activationType === 'I remember';
+          const stopReminder = metadata.activationType === 'Stop reminder';
           if (metadata.activationType === 'clicked') {
             getActiveWindow().show();
           }
-          resolve({ acknowledged });
+          resolve({ stopReminder });
         }
       );
     }

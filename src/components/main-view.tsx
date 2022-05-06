@@ -4,8 +4,10 @@ import {
   Delete,
   EventRepeat,
   Refresh,
+  Check as CheckIcon,
 } from '@mui/icons-material';
 import {
+  Button,
   Chip,
   IconButton,
   List,
@@ -23,6 +25,13 @@ import { Reminder, ReminderGroup } from '../types';
 import getReadableDay from '../utils/readable-date';
 import * as readableDay from '../utils/readable-day';
 import * as readableSecond from '../utils/readable-second';
+import { makeStyles } from 'make-styles';
+
+const useStyles = makeStyles()((theme) => ({
+  deleteButton: {
+    visibility: 'hidden',
+  },
+}));
 
 const MainView = observer(() => {
   const state = useContext(AppStateContext)!;
@@ -80,6 +89,9 @@ const MainView = observer(() => {
     });
   }
 
+  const okayButtonRef = useRef<HTMLDivElement>(null);
+  const { classes } = useStyles();
+
   return (
     <div
       style={{
@@ -98,20 +110,48 @@ const MainView = observer(() => {
                 sx={{
                   border: '1px solid #c0c0c0',
                   borderRadius: '5px',
-                  boxShadow: reminder.reminded ? 0 : 2,
+                  boxShadow: reminder.stopped ? 0 : 2,
                   margin: '10px',
                   boxSizing: 'border-box',
                   width: '90%',
-                  backgroundColor: reminder.reminded ? '#e0e0e0' : 'white',
-                  opacity: reminder.reminded ? 0.5 : 1,
+                  backgroundColor: reminder.stopped ? '#e0e0e0' : 'white',
+                  opacity: reminder.stopped ? 0.5 : 1,
                   display: 'flex',
                   flexDirection: 'row',
                   '& .MuiTypography-root': {
                     fontWeight: 'normal',
                   },
+                  '&:hover': {
+                    '& .toggle-stopped': {
+                      visibility: 'visible',
+                    },
+                    '& .delete-btn': {
+                      visibility: 'visible',
+                    },
+                  },
+                  '& .toggle-stopped': {
+                    visibility: 'hidden',
+                  },
+                  '& .delete-btn': {
+                    visibility: 'hidden',
+                  },
                 }}
                 onClick={(event) => {
-                  state.toggleSidebarReminderInfo(id);
+                  const okayButton = document.querySelector(
+                    `.reminder-${id} .toggle-stopped`
+                  );
+                  const deleteButton = document.querySelector(
+                    `.reminder-${id} .delete-btn`
+                  );
+                  const targetNode = event.target as Node;
+                  if (
+                    !(
+                      okayButton?.contains(targetNode) ||
+                      deleteButton?.contains(targetNode)
+                    )
+                  ) {
+                    state.toggleSidebarReminderInfo(id);
+                  }
                 }}
               >
                 <div>
@@ -183,15 +223,30 @@ const MainView = observer(() => {
                     ))}
                   </div>
                 </div>
-                <div style={{ marginLeft: 'auto' }}>
-                  <IconButton
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      state.deleteReminder(id);
-                    }}
-                  >
-                    <Delete />
-                  </IconButton>
+                <div style={{ marginLeft: 'auto', display: 'flex' }}>
+                  {reminder.remindTime.getTime() < new Date().getTime() && (
+                    <div
+                      className="toggle-stopped"
+                      onClick={(event) => {
+                        reminder.stopped
+                          ? state.continueReminder(reminder.id)
+                          : state.stopReminder(reminder.id);
+                      }}
+                    >
+                      <Button>{reminder.stopped ? 'Continue' : 'Stop'}</Button>
+                    </div>
+                  )}
+                  <div className="delete-btn">
+                    <IconButton
+                      className="delete-btn"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        state.deleteReminder(id);
+                      }}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </div>
                 </div>
               </ListItemButton>
             </ListItem>

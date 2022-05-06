@@ -42,7 +42,7 @@ function getDefaultNewReminder(): Omit<Reminder, 'id'> {
     startTime: new Date(date),
     title: '',
     dayRepeat: undefined,
-    reminded: false,
+    stopped: false,
     remindTime: new Date(date),
     timeRepeat: undefined,
     tags: [],
