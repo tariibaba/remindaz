@@ -35,15 +35,13 @@ import ReminderTimeRepeatPicker from './ReminderTimeRepeatPicker';
 import getReadableDay from '../utils/readable-date';
 
 function getDefaultNewReminder(): Omit<Reminder, 'id'> {
-  const date = addDays(new Date(), 1);
-  date.setHours(0, 0, 0, 0);
   return {
-    startDate: new Date(date),
-    startTime: new Date(date),
+    startDate: new Date(),
+    startTime: new Date(),
     title: '',
     dayRepeat: undefined,
     stopped: false,
-    remindTime: new Date(date),
+    remindTime: new Date(),
     timeRepeat: undefined,
     tags: [],
   };
