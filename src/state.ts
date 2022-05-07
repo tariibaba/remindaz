@@ -179,7 +179,6 @@ export class AppState {
                 title: reminder.title,
               })
               .then(({ stopReminder }) => {
-                console.log(`stopReminder: ${stopReminder}`);
                 if (stopReminder) {
                   this.stopReminder(reminder.id);
                 } else {

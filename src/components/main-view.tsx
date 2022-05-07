@@ -19,19 +19,41 @@ import { differenceInDays, format, startOfDay } from 'date-fns';
 import { observer } from 'mobx-react';
 import React, { useContext, useRef } from 'react';
 import isDefaultReminderGroup from 'utils/is-tag';
-import removeDuplicateSubstrings from 'utils/remove-duplicate-substrings';
 import { AppStateContext } from '../context';
 import { Reminder, ReminderGroup } from '../types';
 import getReadableDay from '../utils/readable-date';
 import * as readableDay from '../utils/readable-day';
 import * as readableSecond from '../utils/readable-second';
 import { makeStyles } from 'make-styles';
+import escapeStringRegexp from 'escape-string-regexp';
+import mergeRanges from 'utils/merge-ranges';
 
 const useStyles = makeStyles()((theme) => ({
   deleteButton: {
     visibility: 'hidden',
   },
 }));
+
+function insertSpans(str: string, ranges: [number, number][]): string {
+  let html = '';
+  let spanIndex = 0;
+  for (let i = 0; i < str.length; i++) {
+    const [spanStart, spanEnd] = ranges[spanIndex];
+    if (i === spanStart) {
+      html += '<span style="background-color:#3FD2E2">';
+    }
+    if (i === spanEnd) {
+      html += '</span>';
+      spanIndex++;
+    }
+    html += str[i];
+    if (spanIndex === ranges.length) {
+      html += str.slice(i + 1);
+      break;
+    }
+  }
+  return html;
+}
 
 const MainView = observer(() => {
   const state = useContext(AppStateContext)!;
@@ -103,6 +125,27 @@ const MainView = observer(() => {
       <List>
         {remindersToShow.map((reminder) => {
           const id = reminder.id;
+          let titleHtml: string = reminder.title;
+          if (queryWords) {
+            const unjoinedSpans: [number, number][] = Array.from(
+              new Set(queryWords)
+            ).reduce((arr, item) => {
+              const indexes = Array.from(
+                reminder.title.matchAll(
+                  new RegExp(escapeStringRegexp(item), 'gi')
+                )
+              );
+              return arr.concat(
+                indexes.map(({ index }) => {
+                  return [index as number, index! + item.length];
+                })
+              );
+            }, [] as [number, number][]);
+            const joinedSpans: [number, number][] = mergeRanges(unjoinedSpans);
+
+            titleHtml = insertSpans(reminder.title, joinedSpans);
+          }
+
           return (
             <ListItem key={id}>
               <ListItemButton
@@ -158,16 +201,7 @@ const MainView = observer(() => {
                   <ListItemText sx={{ fontWeight: 'normal !important' }}>
                     <span
                       dangerouslySetInnerHTML={{
-                        __html: queryWords
-                          ? removeDuplicateSubstrings(queryWords).reduce(
-                              (title, word) =>
-                                title.replace(
-                                  word,
-                                  `<span style="background-color:#3FD2E2">${word}</span>`
-                                ),
-                              reminder.title
-                            )
-                          : reminder.title,
+                        __html: titleHtml,
                       }}
                     />
                   </ListItemText>
