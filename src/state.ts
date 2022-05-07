@@ -23,6 +23,7 @@ import {
   setMinutes,
   getHours,
   getMinutes,
+  differenceInDays,
 } from 'date-fns';
 import isDefaultReminderGroup from 'utils/is-tag';
 
@@ -154,12 +155,29 @@ export class AppState {
     }
   }
 
+  removeRemindersBeforeToday(): void {
+    const now = new Date();
+    this.reminderIds = this.reminderIds.filter((reminderId) => {
+      const reminder = this.allReminders[reminderId];
+      return !(
+        reminder.stopped && differenceInDays(reminder.remindTime, now) <= 0
+      );
+    });
+    const allReminders: Record<string, Reminder> = {};
+    for (let reminderId of this.reminderIds) {
+      allReminders[reminderId] = this.allReminders[reminderId];
+    }
+    this.allReminders = allReminders;
+  }
+
   startNotificationCheck() {
     const devInterval = 10000;
     const interval =
       process.env.NODE_ENV === 'production' ? 60000 : devInterval;
     setInterval(() => {
-      const now = toNearestMinute(new Date());
+      this.removeRemindersBeforeToday();
+      const now = new Date();
+      const thisMinute = toNearestMinute(now);
       this.reminderIds
         .map((id) => this.allReminders[id])
         .filter((reminder) => !reminder.stopped)
@@ -169,8 +187,9 @@ export class AppState {
             reminder.snoozeRemindTime &&
             toNearestMinute(new Date(reminder.snoozeRemindTime!));
           if (
-            (!snoozeRemindTime && date.getTime() <= now.getTime()) ||
-            (snoozeRemindTime && snoozeRemindTime.getTime() <= now.getTime())
+            (!snoozeRemindTime && date.getTime() <= thisMinute.getTime()) ||
+            (snoozeRemindTime &&
+              snoozeRemindTime.getTime() <= thisMinute.getTime())
           ) {
             this.recurReminder(reminder);
             ipcRenderer
