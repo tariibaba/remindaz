@@ -259,24 +259,24 @@ const MainView = observer(() => {
                 </div>
                 <div style={{ marginLeft: 'auto', display: 'flex' }}>
                   {reminder.remindTime.getTime() < new Date().getTime() && (
-                    <div
-                      className="toggle-stopped"
-                      onClick={(event) => {
-                        reminder.stopped
-                          ? state.continueReminder(reminder.id)
-                          : state.stopReminder(reminder.id);
-                      }}
-                    >
-                      <Button>{reminder.stopped ? 'Continue' : 'Stop'}</Button>
+                    <div className="toggle-stopped" onClick={(event) => {}}>
+                      <Button
+                        onMouseDown={(event) => event.stopPropagation()}
+                        onClick={(event) =>
+                          reminder.stopped
+                            ? state.continueReminder(reminder.id)
+                            : state.stopReminder(reminder.id)
+                        }
+                      >
+                        {reminder.stopped ? 'Continue' : 'Stop'}
+                      </Button>
                     </div>
                   )}
                   <div className="delete-btn">
                     <IconButton
                       className="delete-btn"
-                      onClick={(event) => {
-                        event.preventDefault();
-                        state.deleteReminder(id);
-                      }}
+                      onMouseDown={(event) => event.stopPropagation()}
+                      onClick={() => state.deleteReminder(id)}
                     >
                       <Delete />
                     </IconButton>
