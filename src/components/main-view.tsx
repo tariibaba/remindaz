@@ -5,6 +5,7 @@ import {
   EventRepeat,
   Refresh,
   Check as CheckIcon,
+  Sync as SyncIcon,
 } from '@mui/icons-material';
 import {
   Button,
@@ -14,6 +15,7 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
+  useTheme,
 } from '@mui/material';
 import { differenceInDays, format, startOfDay } from 'date-fns';
 import { observer } from 'mobx-react';
@@ -113,6 +115,7 @@ const MainView = observer(() => {
 
   const okayButtonRef = useRef<HTMLDivElement>(null);
   const { classes } = useStyles();
+  const theme = useTheme();
 
   return (
     <div
@@ -207,47 +210,33 @@ const MainView = observer(() => {
                   </ListItemText>
                   <div style={{ flexDirection: 'row', display: 'flex' }}>
                     <Chip
-                      label={getReadableDay(reminder.remindTime)}
-                      icon={<CalendarToday />}
+                      label={
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                          }}
+                        >
+                          {getReadableDay(reminder.remindTime)}
+                          <span>{reminder.dayRepeat && <SyncIcon />}</span>
+                        </div>
+                      }
+                      icon={
+                        <div>
+                          <CalendarToday />
+                        </div>
+                      }
                     />
-                    {reminder.dayRepeat && (
-                      <Chip
-                        label={readableDay.getString(reminder.dayRepeat!)}
-                        icon={<EventRepeat />}
-                        sx={{ marginLeft: '8px' }}
-                      />
-                    )}
                     <Chip
-                      label={format(reminder.remindTime, 'h:mm a')}
+                      label={
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          {format(reminder.remindTime, 'h:mm a')}
+                          <span>{reminder.timeRepeat && <SyncIcon />}</span>
+                        </div>
+                      }
                       icon={<AccessAlarm />}
                       sx={{ marginLeft: '8px' }}
                     />
-                    {reminder.timeRepeat && (
-                      <Chip
-                        label={readableSecond.getString(reminder.timeRepeat!)}
-                        sx={{ marginLeft: '8px' }}
-                        icon={
-                          <div style={{ position: 'relative', marginTop: 0 }}>
-                            <AccessAlarm />
-                            <div
-                              style={{
-                                position: 'absolute',
-                                left: '-10%',
-                                bottom: '5%',
-                                height: 15,
-                                width: 15,
-                                backgroundColor: '#ebebeb',
-                                borderRadius: '50%',
-                              }}
-                            >
-                              <Refresh
-                                style={{ height: '100%', width: '100%' }}
-                              />
-                            </div>
-                          </div>
-                        }
-                      />
-                    )}
                     {reminder.tags.map((tag) => (
                       <Chip
                         key={tag}
