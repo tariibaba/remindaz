@@ -29,6 +29,7 @@ import * as readableSecond from '../utils/readable-second';
 import { makeStyles } from 'make-styles';
 import escapeStringRegexp from 'escape-string-regexp';
 import mergeRanges from 'utils/merge-ranges';
+import { red } from '@mui/material/colors';
 
 const useStyles = makeStyles()((theme) => ({
   deleteButton: {
@@ -149,6 +150,10 @@ const MainView = observer(() => {
             titleHtml = insertSpans(reminder.title, joinedSpans);
           }
 
+          const due: boolean =
+            reminder.remindTime.getTime() < new Date().getTime() &&
+            !reminder.stopped;
+
           return (
             <ListItem key={id}>
               <ListItemButton
@@ -210,6 +215,9 @@ const MainView = observer(() => {
                   </ListItemText>
                   <div style={{ flexDirection: 'row', display: 'flex' }}>
                     <Chip
+                      style={
+                        due ? { backgroundColor: red[400], color: 'white' } : {}
+                      }
                       label={
                         <div
                           style={{
@@ -223,18 +231,25 @@ const MainView = observer(() => {
                       }
                       icon={
                         <div>
-                          <CalendarToday />
+                          <CalendarToday
+                            style={due ? { color: 'white' } : {}}
+                          />
                         </div>
                       }
                     />
                     <Chip
+                      style={
+                        due ? { backgroundColor: red[400], color: 'white' } : {}
+                      }
                       label={
                         <div style={{ display: 'flex', alignItems: 'center' }}>
                           {format(reminder.remindTime, 'h:mm a')}
                           <span>{reminder.timeRepeat && <SyncIcon />}</span>
                         </div>
                       }
-                      icon={<AccessAlarm />}
+                      icon={
+                        <AccessAlarm style={due ? { color: 'white' } : {}} />
+                      }
                       sx={{ marginLeft: '8px' }}
                     />
                     {reminder.tags.map((tag) => (
