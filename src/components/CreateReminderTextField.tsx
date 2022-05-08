@@ -4,18 +4,9 @@ import {
   EventRepeat,
   Refresh,
 } from '@mui/icons-material';
-import { CalendarPicker, StaticTimePicker } from '@mui/lab';
+import { Button, TextField } from '@mui/material';
 import {
-  Button,
-  MenuItem,
-  Popover,
-  Select,
-  TextField,
-  Typography,
-} from '@mui/material';
-import {
-  addDays,
-  addHours,
+  addMinutes,
   format,
   getHours,
   getMinutes,
@@ -35,13 +26,14 @@ import ReminderTimeRepeatPicker from './ReminderTimeRepeatPicker';
 import getReadableDay from '../utils/readable-date';
 
 function getDefaultNewReminder(): Omit<Reminder, 'id'> {
+  const date = addMinutes(new Date(), 1);
   return {
-    startDate: new Date(),
-    startTime: new Date(),
+    startDate: new Date(date),
+    startTime: new Date(date),
     title: '',
     dayRepeat: undefined,
     stopped: false,
-    remindTime: new Date(),
+    remindTime: new Date(date),
     timeRepeat: undefined,
     tags: [],
   };
