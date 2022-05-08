@@ -35,7 +35,12 @@ const AppToolbar = (props: AppToolbarProps) => {
   return (
     <>
       <AppBar position="sticky">
-        <Toolbar sx={{ display: 'flex', flexDirection: 'row' }}>
+        <Toolbar
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+          }}
+        >
           <IconButton
             onClick={() => onSidebarOpen()}
             color="inherit"
@@ -43,11 +48,15 @@ const AppToolbar = (props: AppToolbarProps) => {
           >
             <MenuIcon />
           </IconButton>
-          <SearchBar
-            query={query}
-            onChange={(newQuery) => setQuery(newQuery)}
-            onSearch={() => setWillSearch(true)}
-          />
+          <div
+            style={{ marginLeft: 'auto', width: '100%', marginRight: '16px' }}
+          >
+            <SearchBar
+              query={query}
+              onChange={(newQuery) => setQuery(newQuery)}
+              onSearch={() => setWillSearch(true)}
+            />
+          </div>
           <IconButton
             onClick={() => startMiniMode()}
             color="inherit"

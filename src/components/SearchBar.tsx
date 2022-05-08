@@ -40,6 +40,7 @@ const SearchBar = (props: SearchBarProps) => {
         onChange={onInputChange}
         onKeyDown={onInputKeyDown}
         sx={{ backgroundColor: 'white', width: '100%' }}
+        placeholder="Search reminders"
       ></InputBase>
       <SearchIcon sx={{ marginLeft: 'auto', color: 'black' }}></SearchIcon>
     </Box>
