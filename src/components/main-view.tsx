@@ -6,6 +6,8 @@ import {
   Refresh,
   Check as CheckIcon,
   Sync as SyncIcon,
+  Alarm as AlarmIcon,
+  Search as SearchIcon,
 } from '@mui/icons-material';
 import {
   Button,
@@ -15,6 +17,7 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
+  Typography,
   useTheme,
 } from '@mui/material';
 import { differenceInDays, format, startOfDay } from 'date-fns';
@@ -126,171 +129,204 @@ const MainView = observer(() => {
         scrollbarGutter: 'stable',
       }}
     >
-      <List>
-        {remindersToShow.map((reminder) => {
-          const id = reminder.id;
-          let titleHtml: string = reminder.title;
-          if (queryWords) {
-            const unjoinedSpans: [number, number][] = Array.from(
-              new Set(queryWords)
-            ).reduce((arr, item) => {
-              const indexes = Array.from(
-                reminder.title.matchAll(
-                  new RegExp(escapeStringRegexp(item), 'gi')
-                )
-              );
-              return arr.concat(
-                indexes.map(({ index }) => {
-                  return [index as number, index! + item.length];
-                })
-              );
-            }, [] as [number, number][]);
-            const joinedSpans: [number, number][] = mergeRanges(unjoinedSpans);
+      {remindersToShow.length > 0 ? (
+        <List>
+          {remindersToShow.map((reminder) => {
+            const id = reminder.id;
+            let titleHtml: string = reminder.title;
+            if (queryWords) {
+              const unjoinedSpans: [number, number][] = Array.from(
+                new Set(queryWords)
+              ).reduce((arr, item) => {
+                const indexes = Array.from(
+                  reminder.title.matchAll(
+                    new RegExp(escapeStringRegexp(item), 'gi')
+                  )
+                );
+                return arr.concat(
+                  indexes.map(({ index }) => {
+                    return [index as number, index! + item.length];
+                  })
+                );
+              }, [] as [number, number][]);
+              const joinedSpans: [number, number][] =
+                mergeRanges(unjoinedSpans);
 
-            titleHtml = insertSpans(reminder.title, joinedSpans);
-          }
+              titleHtml = insertSpans(reminder.title, joinedSpans);
+            }
 
-          const due: boolean =
-            reminder.remindTime.getTime() < new Date().getTime() &&
-            !reminder.stopped;
+            const due: boolean =
+              reminder.remindTime.getTime() < new Date().getTime() &&
+              !reminder.stopped;
 
-          return (
-            <ListItem key={id}>
-              <ListItemButton
-                className={`reminder-list-item reminder-${id}`}
-                sx={{
-                  border: '1px solid #c0c0c0',
-                  borderRadius: '5px',
-                  boxShadow: reminder.stopped ? 0 : 2,
-                  margin: '10px',
-                  boxSizing: 'border-box',
-                  width: '90%',
-                  backgroundColor: reminder.stopped ? '#e0e0e0' : 'white',
-                  opacity: reminder.stopped ? 0.5 : 1,
-                  display: 'flex',
-                  flexDirection: 'row',
-                  '& .MuiTypography-root': {
-                    fontWeight: 'normal',
-                  },
-                  '&:hover': {
+            return (
+              <ListItem key={id}>
+                <ListItemButton
+                  className={`reminder-list-item reminder-${id}`}
+                  sx={{
+                    border: '1px solid #c0c0c0',
+                    borderRadius: '5px',
+                    boxShadow: reminder.stopped ? 0 : 2,
+                    margin: '10px',
+                    boxSizing: 'border-box',
+                    width: '90%',
+                    backgroundColor: reminder.stopped ? '#e0e0e0' : 'white',
+                    opacity: reminder.stopped ? 0.5 : 1,
+                    display: 'flex',
+                    flexDirection: 'row',
+                    '& .MuiTypography-root': {
+                      fontWeight: 'normal',
+                    },
+                    '&:hover': {
+                      '& .toggle-stopped': {
+                        visibility: 'visible',
+                      },
+                      '& .delete-btn': {
+                        visibility: 'visible',
+                      },
+                    },
                     '& .toggle-stopped': {
-                      visibility: 'visible',
+                      visibility: 'hidden',
                     },
                     '& .delete-btn': {
-                      visibility: 'visible',
+                      visibility: 'hidden',
                     },
-                  },
-                  '& .toggle-stopped': {
-                    visibility: 'hidden',
-                  },
-                  '& .delete-btn': {
-                    visibility: 'hidden',
-                  },
-                }}
-                onClick={(event) => {
-                  const okayButton = document.querySelector(
-                    `.reminder-${id} .toggle-stopped`
-                  );
-                  const deleteButton = document.querySelector(
-                    `.reminder-${id} .delete-btn`
-                  );
-                  const targetNode = event.target as Node;
-                  if (
-                    !(
-                      okayButton?.contains(targetNode) ||
-                      deleteButton?.contains(targetNode)
-                    )
-                  ) {
-                    state.toggleSidebarReminderInfo(id);
-                  }
-                }}
-              >
-                <div>
-                  <ListItemText sx={{ fontWeight: 'normal !important' }}>
-                    <span
-                      dangerouslySetInnerHTML={{
-                        __html: titleHtml,
-                      }}
-                    />
-                  </ListItemText>
-                  <div style={{ flexDirection: 'row', display: 'flex' }}>
-                    <Chip
-                      style={
-                        due ? { backgroundColor: red[400], color: 'white' } : {}
-                      }
-                      label={
-                        <div
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                          }}
-                        >
-                          {getReadableDay(reminder.remindTime)}
-                          <span>{reminder.dayRepeat && <SyncIcon />}</span>
-                        </div>
-                      }
-                      icon={
-                        <div>
-                          <CalendarToday
-                            style={due ? { color: 'white' } : {}}
-                          />
-                        </div>
-                      }
-                    />
-                    <Chip
-                      style={
-                        due ? { backgroundColor: red[400], color: 'white' } : {}
-                      }
-                      label={
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                          {format(reminder.remindTime, 'h:mm a')}
-                          <span>{reminder.timeRepeat && <SyncIcon />}</span>
-                        </div>
-                      }
-                      icon={
-                        <AccessAlarm style={due ? { color: 'white' } : {}} />
-                      }
-                      sx={{ marginLeft: '8px' }}
-                    />
-                    {reminder.tags.map((tag) => (
-                      <Chip
-                        key={tag}
-                        label={tag}
-                        style={{ marginLeft: '8px' }}
+                  }}
+                  onClick={(event) => {
+                    const okayButton = document.querySelector(
+                      `.reminder-${id} .toggle-stopped`
+                    );
+                    const deleteButton = document.querySelector(
+                      `.reminder-${id} .delete-btn`
+                    );
+                    const targetNode = event.target as Node;
+                    if (
+                      !(
+                        okayButton?.contains(targetNode) ||
+                        deleteButton?.contains(targetNode)
+                      )
+                    ) {
+                      state.toggleSidebarReminderInfo(id);
+                    }
+                  }}
+                >
+                  <div>
+                    <ListItemText sx={{ fontWeight: 'normal !important' }}>
+                      <span
+                        dangerouslySetInnerHTML={{
+                          __html: titleHtml,
+                        }}
                       />
-                    ))}
-                  </div>
-                </div>
-                <div style={{ marginLeft: 'auto', display: 'flex' }}>
-                  {reminder.remindTime.getTime() < new Date().getTime() && (
-                    <div className="toggle-stopped" onClick={(event) => {}}>
-                      <Button
-                        onMouseDown={(event) => event.stopPropagation()}
-                        onClick={(event) =>
-                          reminder.stopped
-                            ? state.continueReminder(reminder.id)
-                            : state.stopReminder(reminder.id)
+                    </ListItemText>
+                    <div style={{ flexDirection: 'row', display: 'flex' }}>
+                      <Chip
+                        style={
+                          due
+                            ? { backgroundColor: red[400], color: 'white' }
+                            : {}
                         }
-                      >
-                        {reminder.stopped ? 'Continue' : 'Stop'}
-                      </Button>
+                        label={
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                            }}
+                          >
+                            {getReadableDay(reminder.remindTime)}
+                            <span>{reminder.dayRepeat && <SyncIcon />}</span>
+                          </div>
+                        }
+                        icon={
+                          <div>
+                            <CalendarToday
+                              style={due ? { color: 'white' } : {}}
+                            />
+                          </div>
+                        }
+                      />
+                      <Chip
+                        style={
+                          due
+                            ? { backgroundColor: red[400], color: 'white' }
+                            : {}
+                        }
+                        label={
+                          <div
+                            style={{ display: 'flex', alignItems: 'center' }}
+                          >
+                            {format(reminder.remindTime, 'h:mm a')}
+                            <span>{reminder.timeRepeat && <SyncIcon />}</span>
+                          </div>
+                        }
+                        icon={
+                          <AccessAlarm style={due ? { color: 'white' } : {}} />
+                        }
+                        sx={{ marginLeft: '8px' }}
+                      />
+                      {reminder.tags.map((tag) => (
+                        <Chip
+                          key={tag}
+                          label={tag}
+                          style={{ marginLeft: '8px' }}
+                        />
+                      ))}
                     </div>
-                  )}
-                  <div className="delete-btn">
-                    <IconButton
-                      className="delete-btn"
-                      onMouseDown={(event) => event.stopPropagation()}
-                      onClick={() => state.deleteReminder(id)}
-                    >
-                      <Delete />
-                    </IconButton>
                   </div>
-                </div>
-              </ListItemButton>
-            </ListItem>
-          );
-        })}
-      </List>
+                  <div style={{ marginLeft: 'auto', display: 'flex' }}>
+                    {reminder.remindTime.getTime() < new Date().getTime() && (
+                      <div className="toggle-stopped" onClick={(event) => {}}>
+                        <Button
+                          onMouseDown={(event) => event.stopPropagation()}
+                          onClick={(event) =>
+                            reminder.stopped
+                              ? state.continueReminder(reminder.id)
+                              : state.stopReminder(reminder.id)
+                          }
+                        >
+                          {reminder.stopped ? 'Continue' : 'Stop'}
+                        </Button>
+                      </div>
+                    )}
+                    <div className="delete-btn">
+                      <IconButton
+                        className="delete-btn"
+                        onMouseDown={(event) => event.stopPropagation()}
+                        onClick={() => state.deleteReminder(id)}
+                      >
+                        <Delete />
+                      </IconButton>
+                    </div>
+                  </div>
+                </ListItemButton>
+              </ListItem>
+            );
+          })}
+        </List>
+      ) : (
+        <div
+          style={{
+            height: '100%',
+            width: '100%',
+            justifyContent: 'center',
+            alignItems: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            color: '#c0c0c0',
+          }}
+        >
+          {queryWords ? (
+            <>
+              <SearchIcon style={{ width: '100px', height: '100px' }} />
+              <Typography>No search results found</Typography>
+            </>
+          ) : (
+            <>
+              <AlarmIcon style={{ width: '100px', height: '100px' }} />
+              <Typography>Create reminders to receive notifications</Typography>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 });

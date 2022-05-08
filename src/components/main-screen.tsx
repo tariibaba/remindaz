@@ -11,6 +11,9 @@ import { AppStateContext } from 'context';
 const MainScreen = () => {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const state = useContext(AppStateContext)!;
+  const showTextField =
+    state.selectedGroup === 'all' ||
+    !isDefaultReminderGroup(state.selectedGroup);
 
   return (
     <div
@@ -26,10 +29,10 @@ const MainScreen = () => {
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
           <AppToolbar onSidebarOpen={() => setSidebarOpen(true)} />
           <MainView />
-          {(state.selectedGroup === 'all' ||
-            !isDefaultReminderGroup(state.selectedGroup)) && (
+
+          <div style={{ visibility: showTextField ? 'visible' : 'hidden' }}>
             <CreateReminderTextField />
-          )}
+          </div>
         </div>
       </div>
       <ReminderInfoSidebar />

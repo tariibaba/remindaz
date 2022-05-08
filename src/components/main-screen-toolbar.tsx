@@ -49,7 +49,7 @@ const AppToolbar = (props: AppToolbarProps) => {
             <MenuIcon />
           </IconButton>
           <div
-            style={{ marginLeft: 'auto', width: '100%', marginRight: '16px' }}
+            style={{ marginLeft: '16px', width: '100%', marginRight: '16px' }}
           >
             <SearchBar
               query={query}

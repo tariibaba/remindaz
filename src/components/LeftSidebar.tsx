@@ -46,7 +46,14 @@ const LeftSidebar = (props: LeftSidebarProps) => {
             <ListItemText>{text}</ListItemText>
           </ListItemButton>
         ))}
-        {state?.tagNames?.length! > 0 && <Typography>Tags</Typography>}
+        {state?.tagNames?.length! > 0 && (
+          <Typography
+            style={{ textAlign: 'center', marginTop: '16px' }}
+            variant="subtitle2"
+          >
+            Tags
+          </Typography>
+        )}
         {state?.tagNames.map((tagName) => (
           <ListItemButton
             key={tagName}
@@ -73,6 +80,7 @@ const LeftSidebar = (props: LeftSidebarProps) => {
         sx={{
           display: { sm: 'none', lg: 'block' },
           '& .MuiDrawer-paper': { position: { sm: 'fixed', lg: 'static' } },
+          height: '100%',
         }}
       >
         {drawerContent}
