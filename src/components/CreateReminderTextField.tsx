@@ -6,7 +6,7 @@ import {
 } from '@mui/icons-material';
 import { Button, TextField } from '@mui/material';
 import {
-  addMinutes,
+  addHours,
   format,
   getHours,
   getMinutes,
@@ -26,7 +26,7 @@ import ReminderTimeRepeatPicker from './ReminderTimeRepeatPicker';
 import getReadableDay from '../utils/readable-date';
 
 function getDefaultNewReminder(): Omit<Reminder, 'id'> {
-  const date = addMinutes(new Date(), 1);
+  const date = addHours(new Date(), 1);
   return {
     startDate: new Date(date),
     startTime: new Date(date),
