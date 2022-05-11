@@ -101,7 +101,13 @@ ipcMain.handle('notify', (event, args) => {
     const { type, title } = args;
     if (type === 'reminder') {
       notifier.notify(
-        { title, message: ' ', actions: ['Stop reminder'], wait: true },
+        {
+          appName: 'com.tariibaba.reminders',
+          title,
+          message: ' ',
+          actions: ['Stop reminder'],
+          wait: true,
+        },
         (err, res, metadata) => {
           const stopReminder = metadata.activationType === 'Stop reminder';
           if (metadata.activationType === 'clicked') {
