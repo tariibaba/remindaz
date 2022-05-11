@@ -1,17 +1,47 @@
-# electron-react-boilerplate
+# Reminders by Tari Ibaba
 
-Simple Electron + React template. Uses Create React App and comes with Electron Builder.
+Beautiful cross-platform app to store all information (tasks, events, etc.) you need to remember.
 
-## How to Use
+## How is Reminders Different from a To-do List App?
 
-Start React in one shell instance:
+Reminders is focused on **reminders**, not tasks. There is no concept of task completion or sub-tasks. Every reminder you add has to have a defined date and time for your being notified. When a reminder is due, you can stop it or you can let it "snooze" periodically for as long as you want.
 
-```
-yarn start
-```
+## Features
+- Beautiful and clean user interface.
+- Create new reminders fast.
+- Get native desktop notifications for reminders when due.
+- Repeat reminders throughout the day (every X minutes or hours).
+- Repeat reminders every X days (weeks, months, or years).
+- Group reminders with multiple tags.
+- Run app at startup to keep getting reminders on computer restart.
+- Continue getting regular "snooze" notifications once a reminder is due.
+- Get notifications for reminders you missed (when your computer was turned off).
+- Easily edit reminder details.
+- Add more information for reminders with notes.
+- More features coming soon.
 
-Wait for it to load, then start Electron in another shell instance:
+## Tech Stack
+- React (+ MobX)
+- Electron
 
-```
-yarn electron-start
-```
+## Contributing
+
+All feedback and suggestions are welcome. You can send one by creating a [new issue](https://github.com/tariibaba/reminders/issues/new).
+
+### Running from Source
+
+Fork the repo and clone your fork:
+
+```git clone https://github.com/<<<your-github-account>>>/beveldm```
+
+Go to the project folder in a terminal instance and install dependences:
+
+```yarn install```
+
+Start React:
+
+```yarn rstart```
+
+Start Electron in a new terminal instance:
+
+```yarn dev```

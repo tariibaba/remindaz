@@ -11,6 +11,7 @@
   },
   "build": {
     "appId": "com.tariibaba.reminders",
+    "icon": "public/logo.png",
     "productName": "Reminders",
     "artifactName": "Reminders-Installer-${version}-${os}-${arch}.${ext}",
     "files": [
