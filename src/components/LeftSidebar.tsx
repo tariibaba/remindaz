@@ -3,7 +3,6 @@ import {
   Divider,
   Drawer,
   List,
-  ListItem,
   ListItemButton,
   ListItemText,
   Toolbar,
@@ -58,7 +57,7 @@ const LeftSidebar = (props: LeftSidebarProps) => {
           <ListItemButton
             key={tagName}
             selected={tagName.toLowerCase() === state?.selectedGroup}
-            onClick={() => onChangeGroup(tagName.toLowerCase())}
+            onClick={() => onChangeGroup(tagName)}
           >
             <ListItemText>{tagName}</ListItemText>
           </ListItemButton>
