@@ -2,6 +2,8 @@
 
 Beautiful cross-platform app to store all information (tasks, events, etc.) you need to remember.
 
+![A screenshot of Reminders](media/screenshot-1.png)
+
 ## How is Reminders Different from a To-do List App?
 
 Reminders is focused on **reminders**, not tasks. There is no concept of task completion or sub-tasks. Every reminder you add has to have a defined date and time for your being notified. When a reminder is due, you can stop it or you can let it "snooze" periodically for as long as you want.
@@ -10,6 +12,7 @@ Reminders is focused on **reminders**, not tasks. There is no concept of task co
 - Beautiful and clean user interface.
 - Create new reminders fast.
 - Get native desktop notifications for reminders when due.
+- Keep reminders visible at all times with sticky mini mode.
 - Repeat reminders throughout the day (every X minutes or hours).
 - Repeat reminders every X days (weeks, months, or years).
 - Group reminders with multiple tags.

@@ -61,7 +61,9 @@
     "preepack": "yarn build",
     "epack": "electron-builder --dir",
     "predist": "yarn build",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "sbuild": "node scripts/build.js",
+    "presbuild": "yarn build"
   },
   "eslintConfig": {
     "extends": [

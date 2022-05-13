@@ -121,7 +121,7 @@ ipcMain.handle('notify', (event, args) => {
 });
 
 function initTray() {
-  tray = new Tray(path.join(__dirname, 'logo192.png'));
+  tray = new Tray(path.join(__dirname, 'logo.png'));
   const contextMenu = Menu.buildFromTemplate([
     {
       label: 'Quit',

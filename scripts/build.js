@@ -9,13 +9,14 @@ const outputPath = path.resolve(outputDir);
 
 async function renameWin(arch) {
   console.log('Renaming files...');
-  const oldFilename = `Reminders-Installer-${version}-win.exe`;
+  const oldArch = arch === 'x86' ? 'ia32' : arch;
+  const oldFilename = `Reminders-Installer-${version}-win-${oldArch}.exe`;
   const newFilename = `Reminders-Installer-${version}-win-${arch}.exe`;
   await fs.rename(
     path.join(outputPath, oldFilename),
     path.join(outputPath, newFilename)
   );
-  const oldFilenameBlockmap = `Reminders-Installer-${version}-win.exe.blockmap`;
+  const oldFilenameBlockmap = `Reminders-Installer-${version}-win-${oldArch}.exe.blockmap`;
   const newFilenameBlockmap = `Reminders-Installer-${version}-win-${arch}.exe.blockmap`;
   await fs.rename(
     path.join(outputPath, oldFilenameBlockmap),
