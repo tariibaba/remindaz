@@ -74,12 +74,12 @@ const MainView = observer(() => {
     switch (selectedGroup) {
       case 'overdue':
         remindersToShow = reminders.filter(
-          (reminder) => startOfDay(reminder.remindTime) < startOfDay(now)
+          (reminder) => reminder.remindTime.getTime() - now.getTime() < 0
         );
         break;
       case 'today':
-        remindersToShow = reminders.filter(
-          (reminder) => startOfDay(reminder.remindTime) === startOfDay(now)
+        remindersToShow = reminders.filter((reminder) =>
+          differenceInDays(reminder.remindTime, now)
         );
         break;
       case 'all':
@@ -87,14 +87,12 @@ const MainView = observer(() => {
         break;
       case 'tomorrow':
         remindersToShow = reminders.filter(
-          (reminder) =>
-            differenceInDays(startOfDay(reminder.remindTime), today) === 1
+          (reminder) => differenceInDays(reminder.remindTime, now) === 1
         );
         break;
       case 'later':
         remindersToShow = reminders.filter(
-          (reminder) =>
-            differenceInDays(startOfDay(reminder.remindTime), today) > 1
+          (reminder) => differenceInDays(reminder.remindTime, now) > 1
         );
         break;
     }
