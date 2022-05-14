@@ -186,12 +186,14 @@ export class AppState {
           const snoozeRemindTime =
             reminder.snoozeRemindTime &&
             toNearestMinute(new Date(reminder.snoozeRemindTime!));
-          if (
-            (!snoozeRemindTime && date.getTime() <= thisMinute.getTime()) ||
-            (snoozeRemindTime &&
-              snoozeRemindTime.getTime() <= thisMinute.getTime())
-          ) {
-            this.recurReminder(reminder);
+
+          const isRemindTimeNotification =
+            !snoozeRemindTime && date.getTime() <= thisMinute.getTime();
+          const isSnoozeNotification =
+            snoozeRemindTime &&
+            snoozeRemindTime.getTime() <= thisMinute.getTime();
+          if (isRemindTimeNotification || isSnoozeNotification) {
+            if (isRemindTimeNotification) this.recurReminder(reminder);
             ipcRenderer
               .invoke('notify', {
                 type: 'reminder',
