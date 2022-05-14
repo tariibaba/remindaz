@@ -361,6 +361,7 @@ export class AppState {
         this.allReminders[id].remindTime = newRemindTime;
       }
     });
+    this.updateWindowBadge();
     this.saveState();
   }
 
