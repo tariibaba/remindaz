@@ -2,9 +2,6 @@ import {
   AccessAlarm,
   CalendarToday,
   Delete,
-  EventRepeat,
-  Refresh,
-  Check as CheckIcon,
   Sync as SyncIcon,
   Alarm as AlarmIcon,
   Search as SearchIcon,
@@ -18,7 +15,6 @@ import {
   ListItemButton,
   ListItemText,
   Typography,
-  useTheme,
 } from '@mui/material';
 import { differenceInDays, format, startOfDay } from 'date-fns';
 import { observer } from 'mobx-react';
@@ -70,7 +66,6 @@ const MainView = observer(() => {
   const now = new Date();
 
   if (isDefaultReminderGroup(selectedGroup)) {
-    const today = startOfDay(now);
     switch (selectedGroup) {
       case 'overdue':
         remindersToShow = reminders.filter(
@@ -102,11 +97,11 @@ const MainView = observer(() => {
     );
   }
 
-  const trimmedQuery = state.query.trim();
+  const trimmedQuery = state.query.toLowerCase().trim();
   const queryWords = trimmedQuery && trimmedQuery.split(' ');
   if (queryWords) {
     remindersToShow = remindersToShow.filter((reminder) => {
-      const titleWords = reminder.title.split(' ');
+      const titleWords = reminder.title.toLowerCase().split(' ');
       return queryWords.every((queryWord) => {
         return titleWords.some(
           (titleWord) => titleWord.search(queryWord) !== -1
@@ -114,10 +109,6 @@ const MainView = observer(() => {
       });
     });
   }
-
-  const okayButtonRef = useRef<HTMLDivElement>(null);
-  const { classes } = useStyles();
-  const theme = useTheme();
 
   return (
     <div
