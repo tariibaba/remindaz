@@ -194,9 +194,23 @@ const ReminderInfoSidebar = () => {
           flexDirection: 'column',
           alignItems: 'stretch',
           boxSizing: 'border-box',
-          padding: '16px',
+          paddingLeft: '16px',
+          paddingRight: '16px',
+          paddingBottom: '16px',
+          overflowY: 'auto',
         }}
       >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            marginBottom: '16px',
+          }}
+        >
+          <IconButton onClick={() => state.hideSidebarReminderInfo()}>
+            <Close fontSize="small" />
+          </IconButton>
+        </div>
         <TextField
           value={titleInputValue}
           onChange={onTitleInputChange}
@@ -234,7 +248,7 @@ const ReminderInfoSidebar = () => {
               </ListItemButton>
               {reminder?.dayRepeat && (
                 <IconButton onClick={removeDayRepeatButtonClick}>
-                  <Close />
+                  <Close fontSize="small" />
                 </IconButton>
               )}
             </ListItem>
@@ -282,7 +296,7 @@ const ReminderInfoSidebar = () => {
               </ListItemButton>
               {reminder?.timeRepeat && (
                 <IconButton onClick={removeTimeRepeatButtonClick}>
-                  <Close />
+                  <Close fontSize="small" />
                 </IconButton>
               )}
             </ListItem>
@@ -338,19 +352,6 @@ const ReminderInfoSidebar = () => {
           sx={{ marginTop: 4 }}
           rows={4}
         />
-        <div style={{ marginTop: 'auto' }}>
-          <Button
-            sx={{
-              width: '100%',
-              display: 'flex',
-              justifyContent: 'flex-start',
-              marginTop: 'auto',
-            }}
-            onClick={() => state.hideSidebarReminderInfo()}
-          >
-            <KeyboardArrowRight />
-          </Button>
-        </div>
       </div>
       <ReminderDatePicker
         popoverProps={{
