@@ -26,6 +26,7 @@ import {
   differenceInDays,
 } from 'date-fns';
 import isDefaultReminderGroup from 'utils/is-tag';
+import { isOverdue } from 'utils/reminder';
 
 const dataPath = ipcRenderer.sendSync('getUserDataPath');
 
@@ -297,10 +298,9 @@ export class AppState {
   }
 
   continueReminder(reminderId: string): void {
-    runInAction(() => {
-      this.allReminders[reminderId].stopped = false;
-    });
-    this.snoozeReminder(reminderId);
+    this.allReminders[reminderId].stopped = false;
+    const reminder = this.allReminders[reminderId];
+    if (isOverdue(reminder)) this.snoozeReminder(reminderId);
     this.saveState();
   }
 
