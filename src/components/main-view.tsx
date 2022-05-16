@@ -5,6 +5,7 @@ import {
   Sync as SyncIcon,
   Alarm as AlarmIcon,
   Search as SearchIcon,
+  MoreVert,
 } from '@mui/icons-material';
 import {
   Button,
@@ -14,11 +15,15 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
+  Menu,
+  MenuItem,
+  SxProps,
+  Theme,
   Typography,
 } from '@mui/material';
-import { differenceInDays, format, startOfDay } from 'date-fns';
+import { differenceInDays, format, isSameDay, startOfDay } from 'date-fns';
 import { observer } from 'mobx-react';
-import React, { useContext, useRef } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import isDefaultReminderGroup from 'utils/is-tag';
 import { AppStateContext } from '../context';
 import { Reminder, ReminderGroup } from '../types';
@@ -29,10 +34,42 @@ import { makeStyles } from 'make-styles';
 import escapeStringRegexp from 'escape-string-regexp';
 import mergeRanges from 'utils/merge-ranges';
 import { red } from '@mui/material/colors';
+import clsx from 'clsx';
 
 const useStyles = makeStyles()((theme) => ({
   deleteButton: {
     visibility: 'hidden',
+  },
+  reminderListItem: {
+    border: '1px solid #c0c0c0',
+    borderRadius: '5px',
+    boxShadow: theme.shadows[2],
+    margin: '10px',
+    boxSizing: 'border-box',
+    width: '90%',
+    backgroundColor: 'white',
+    opacity: 1,
+    display: 'flex',
+    flexDirection: 'row',
+    '&:hover': {
+      '& .toggle-stopped': {
+        visibility: 'visible',
+      },
+      '& .delete-btn': {
+        visibility: 'visible',
+      },
+    },
+    '& .toggle-stopped': {
+      visibility: 'hidden',
+    },
+    '& .delete-btn': {
+      visibility: 'hidden',
+    },
+  },
+  reminderStopped: {
+    backgroundColor: '#e0e0e0',
+    opacity: 0.5,
+    boxShadow: 'none',
   },
 }));
 
@@ -73,8 +110,8 @@ const MainView = observer(() => {
         );
         break;
       case 'today':
-        remindersToShow = reminders.filter((reminder) =>
-          differenceInDays(reminder.remindTime, now)
+        remindersToShow = reminders.filter(
+          (reminder) => differenceInDays(reminder.remindTime, now) === 0
         );
         break;
       case 'all':
@@ -109,6 +146,51 @@ const MainView = observer(() => {
       });
     });
   }
+
+  const { classes } = useStyles();
+  const [moreActionsAnchorEl, setMoreActionsAnchorEl] = useState<
+    HTMLElement | undefined
+  >(undefined);
+  const handleMoreVertClick = (event, reminder: Reminder) => {
+    setMoreActionsReminder(reminder);
+    setMoreActionsAnchorEl(event.currentTarget);
+  };
+  const handleMoreActionsClose = () => {
+    setMoreActionsAnchorEl(undefined);
+  };
+
+  const handleStopForToday = (reminderId: string) => {
+    state.stopReminderForToday(reminderId);
+    handleMoreActionsClose();
+  };
+  const [moreActionsReminder, setMoreActionsReminder] = useState<
+    Reminder | undefined
+  >(undefined);
+
+  const handleListItemButtonClick = (event, reminder: Reminder) => {
+    const { id } = reminder;
+    const okayButton = document.querySelector(
+      `.reminder-${id} .toggle-stopped`
+    );
+    const deleteButton = document.querySelector(`.reminder-${id} .delete-btn`);
+    const moreVertButton = document.querySelector(
+      `.reminder-${id} .more-vert-btn`
+    );
+    const targetNode = event.target as Node;
+    if (
+      !(
+        okayButton?.contains(targetNode) ||
+        deleteButton?.contains(targetNode) ||
+        moreVertButton?.contains(targetNode)
+      )
+    ) {
+      state.toggleSidebarReminderInfo(id);
+    }
+  };
+
+  const handleDeleteClick = (reminderId: string) => {
+    state.deleteReminder(reminderId);
+  };
 
   return (
     <div
@@ -151,53 +233,15 @@ const MainView = observer(() => {
             return (
               <ListItem key={id}>
                 <ListItemButton
-                  className={`reminder-list-item reminder-${id}`}
-                  sx={{
-                    border: '1px solid #c0c0c0',
-                    borderRadius: '5px',
-                    boxShadow: reminder.stopped ? 0 : 2,
-                    margin: '10px',
-                    boxSizing: 'border-box',
-                    width: '90%',
-                    backgroundColor: reminder.stopped ? '#e0e0e0' : 'white',
-                    opacity: reminder.stopped ? 0.5 : 1,
-                    display: 'flex',
-                    flexDirection: 'row',
-                    '& .MuiTypography-root': {
-                      fontWeight: 'normal',
-                    },
-                    '&:hover': {
-                      '& .toggle-stopped': {
-                        visibility: 'visible',
-                      },
-                      '& .delete-btn': {
-                        visibility: 'visible',
-                      },
-                    },
-                    '& .toggle-stopped': {
-                      visibility: 'hidden',
-                    },
-                    '& .delete-btn': {
-                      visibility: 'hidden',
-                    },
-                  }}
-                  onClick={(event) => {
-                    const okayButton = document.querySelector(
-                      `.reminder-${id} .toggle-stopped`
-                    );
-                    const deleteButton = document.querySelector(
-                      `.reminder-${id} .delete-btn`
-                    );
-                    const targetNode = event.target as Node;
-                    if (
-                      !(
-                        okayButton?.contains(targetNode) ||
-                        deleteButton?.contains(targetNode)
-                      )
-                    ) {
-                      state.toggleSidebarReminderInfo(id);
-                    }
-                  }}
+                  className={clsx(
+                    'reminder-list-item',
+                    `reminder-${id}`,
+                    classes.reminderListItem,
+                    reminder.stopped && classes.reminderStopped
+                  )}
+                  onClick={(event) =>
+                    handleListItemButtonClick(event, reminder)
+                  }
                 >
                   <div>
                     <ListItemText sx={{ fontWeight: 'normal !important' }}>
@@ -280,11 +324,17 @@ const MainView = observer(() => {
                       <IconButton
                         className="delete-btn"
                         onMouseDown={(event) => event.stopPropagation()}
-                        onClick={() => state.deleteReminder(id)}
+                        onClick={() => handleDeleteClick(reminder.id)}
                       >
                         <Delete />
                       </IconButton>
                     </div>
+                    <IconButton
+                      onClick={(event) => handleMoreVertClick(event, reminder)}
+                      className="more-vert-btn"
+                    >
+                      <MoreVert />
+                    </IconButton>
                   </div>
                 </ListItemButton>
               </ListItem>
@@ -316,6 +366,24 @@ const MainView = observer(() => {
           )}
         </div>
       )}
+      <Menu
+        open={Boolean(moreActionsAnchorEl)}
+        onClose={handleMoreActionsClose}
+        anchorEl={moreActionsAnchorEl}
+      >
+        <MenuItem
+          disabled={
+            moreActionsReminder?.stopped ||
+            !(
+              moreActionsReminder?.dayRepeat &&
+              isSameDay(moreActionsReminder?.remindTime!, now)
+            )
+          }
+          onClick={() => handleStopForToday(moreActionsReminder?.id!)}
+        >
+          Stop for today
+        </MenuItem>
+      </Menu>
     </div>
   );
 });
