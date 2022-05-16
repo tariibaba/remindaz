@@ -290,10 +290,8 @@ export class AppState {
 
   stopReminder(reminderId: string): void {
     const reminder = this.allReminders[reminderId];
-    runInAction(() => {
-      reminder.stopped = true;
-    });
-
+    reminder.stopped = true;
+    this.updateWindowBadge();
     this.saveState();
   }
 
@@ -301,6 +299,7 @@ export class AppState {
     this.allReminders[reminderId].stopped = false;
     const reminder = this.allReminders[reminderId];
     if (isOverdue(reminder)) this.snoozeReminder(reminderId);
+    this.updateWindowBadge();
     this.saveState();
   }
 
