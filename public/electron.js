@@ -102,11 +102,12 @@ ipcMain.handle('notify', (event, args) => {
     if (type === 'reminder') {
       notifier.notify(
         {
-          appName: 'com.tariibaba.reminders',
+          // appName: 'com.tariibaba.reminders',
           title,
           message: ' ',
           actions: ['Stop reminder'],
           wait: true,
+          icon: path.join(__dirname, 'logo.png'),
         },
         (err, res, metadata) => {
           const stopReminder = metadata.activationType === 'Stop reminder';
