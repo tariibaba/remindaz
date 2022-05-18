@@ -5,13 +5,8 @@ import { ipcRenderer } from 'electron';
 import fs from 'fs/promises';
 import path from 'path';
 import {
-  addDays,
   addHours,
   addMinutes,
-  addMonths,
-  addSeconds,
-  addWeeks,
-  addYears,
   getDate,
   getMonth,
   getYear,
@@ -24,9 +19,10 @@ import {
   getHours,
   getMinutes,
   differenceInDays,
+  isYesterday,
 } from 'date-fns';
 import isDefaultReminderGroup from 'utils/is-tag';
-import { isOverdue } from 'utils/reminder';
+import { getNextDay, isPast, isSnoozeDue } from 'utils/reminder';
 
 const dataPath = ipcRenderer.sendSync('getUserDataPath');
 
@@ -39,21 +35,6 @@ type AppScreen = 'main' | 'settings';
 const defaultSettings: AppSettings = {
   runAtStartup: true,
 };
-
-function getNextDay(reminder: Reminder): Date {
-  const remindTime = reminder.remindTime;
-  const dayRepeat = reminder.dayRepeat;
-  const add = {
-    day: addDays,
-    week: addWeeks,
-    month: addMonths,
-    year: addYears,
-  }[dayRepeat?.unit!];
-  let nextDay = add(remindTime, dayRepeat?.num!);
-  nextDay = setHours(nextDay, getHours(reminder.startTime));
-  nextDay = setMinutes(nextDay, getMinutes(reminder.startTime));
-  return nextDay;
-}
 
 export class AppState {
   reminderIds: string[] = [];
@@ -72,21 +53,24 @@ export class AppState {
     makeAutoObservable(this);
   }
 
-  createReminder(reminder: Omit<Reminder, 'id'>): { id: string } {
+  createReminder(options: Omit<Reminder, 'id'>): { id: string } {
     const id = v4();
-    runInAction(() => {
-      this.reminderIds.push(id);
-      this.allReminders[id] = {
-        id,
-        ...reminder,
-        tags: [],
-      };
-      if (!isDefaultReminderGroup(this.selectedGroup)) {
-        this._putTag(id, this.selectedGroup);
-      }
-    });
-    this.saveState();
+    this.reminderIds.push(id);
+    this.allReminders[id] = {
+      id,
+      ...options,
+      tags: [],
+    };
+    const reminder = this.allReminders[id];
+    if (!isDefaultReminderGroup(this.selectedGroup)) {
+      this._putTag(id, this.selectedGroup);
+    }
+    reminder.stopped = isPast(reminder);
+    if (reminder.dayRepeat || reminder.timeRepeat) {
+      this.recurReminder(reminder);
+    }
     this.updateWindowBadge();
+    this.saveState();
     return { id };
   }
 
@@ -171,63 +155,37 @@ export class AppState {
     }
   }
 
-  removeRemindersBeforeToday(): void {
-    const now = new Date();
-    this.reminderIds = this.reminderIds.filter((reminderId) => {
-      const reminder = this.allReminders[reminderId];
-      return !(
-        reminder.stopped && differenceInDays(reminder.remindTime, now) < 0
-      );
-    });
-    const allReminders: Record<string, Reminder> = {};
-    for (let reminderId of this.reminderIds) {
-      allReminders[reminderId] = this.allReminders[reminderId];
-    }
-    this.allReminders = allReminders;
-    this.saveState();
-  }
-
   startNotificationCheck() {
     const devInterval = 10000;
     const interval =
       process.env.NODE_ENV === 'production' ? 60000 : devInterval;
     setInterval(() => {
-      this.removeRemindersBeforeToday();
-      const now = new Date();
-      const thisMinute = toNearestMinute(now);
       this.reminderIds
         .map((id) => this.allReminders[id])
         .filter((reminder) => !reminder.stopped)
-        .forEach((reminder, index) => {
-          const date = toNearestMinute(reminder.remindTime);
-          const snoozeRemindTime =
-            reminder.snoozeRemindTime &&
-            toNearestMinute(new Date(reminder.snoozeRemindTime!));
-
-          const isNormalNotification =
-            !snoozeRemindTime && date.getTime() <= thisMinute.getTime();
-          const isSnoozeNotification =
-            snoozeRemindTime &&
-            snoozeRemindTime.getTime() <= thisMinute.getTime();
-
-          if (isNormalNotification || isSnoozeNotification) {
-            if (isNormalNotification) this.recurReminder(reminder);
-            ipcRenderer
-              .invoke('notify', {
-                type: 'reminder',
-                title: reminder.title,
-              })
-              .then(({ stopReminder }) => {
-                if (stopReminder) {
-                  this.stopReminder(reminder.id);
-                } else {
-                  this.snoozeReminder(reminder.id);
-                }
-                this.saveState();
-              });
-          }
-        });
+        .forEach((reminder) => this.checkIfReminderDue(reminder));
     }, interval);
+  }
+
+  checkIfReminderDue(reminder: Reminder) {
+    const normalNotification = !reminder.snoozeRemindTime && isPast(reminder);
+    if (normalNotification || isSnoozeDue(reminder)) {
+      if (normalNotification) this.recurReminder(reminder);
+      this.sendNotification(reminder);
+    }
+  }
+
+  async sendNotification(reminder: Reminder) {
+    const { stopReminder } = await ipcRenderer.invoke('notify', {
+      type: 'reminder',
+      title: reminder.title,
+    });
+    if (stopReminder) {
+      this.stopReminder(reminder.id);
+    } else {
+      this.snoozeReminder(reminder.id);
+    }
+    this.saveState();
   }
 
   snoozeReminder(id: string): void {
@@ -298,7 +256,7 @@ export class AppState {
   continueReminder(reminderId: string): void {
     this.allReminders[reminderId].stopped = false;
     const reminder = this.allReminders[reminderId];
-    if (isOverdue(reminder)) this.snoozeReminder(reminderId);
+    if (isPast(reminder)) this.snoozeReminder(reminderId);
     this.updateWindowBadge();
     this.saveState();
   }
