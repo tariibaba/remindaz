@@ -35,6 +35,7 @@ import escapeStringRegexp from 'escape-string-regexp';
 import mergeRanges from 'utils/merge-ranges';
 import { red } from '@mui/material/colors';
 import clsx from 'clsx';
+import { isDue } from 'utils/reminder';
 
 const useStyles = makeStyles()((theme) => ({
   deleteButton: {
@@ -231,9 +232,7 @@ const MainView = observer(() => {
               titleHtml = insertSpans(reminder.title, joinedSpans);
             }
 
-            const due: boolean =
-              reminder.remindTime.getTime() < new Date().getTime() &&
-              !reminder.stopped;
+            const due = isDue(reminder);
 
             return (
               <ListItem key={id}>

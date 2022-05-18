@@ -24,7 +24,13 @@ import {
   getDay,
 } from 'date-fns';
 import isDefaultReminderGroup from 'utils/is-tag';
-import { getNextDay, isPast, isSnoozeDue } from 'utils/reminder';
+import {
+  getNextDay,
+  isDue,
+  isPast,
+  isRecurring,
+  isSnoozeDue,
+} from 'utils/reminder';
 
 const dataPath = ipcRenderer.sendSync('getUserDataPath');
 
@@ -141,7 +147,11 @@ export class AppState {
     const jsonString = (await fs.readFile(filePath)).toString();
     try {
       const data = JSON.parse(jsonString, (key, value) => {
-        if (['startDate', 'startTime', 'remindTime'].includes(key)) {
+        if (
+          ['startDate', 'startTime', 'remindTime', 'snoozeRemindTime'].includes(
+            key
+          )
+        ) {
           const date = new Date(value);
           return date;
         }
@@ -172,9 +182,12 @@ export class AppState {
   }
 
   checkIfReminderDue(reminder: Reminder) {
-    const normalNotification = !reminder.snoozeRemindTime && isPast(reminder);
-    if (normalNotification || isSnoozeDue(reminder)) {
-      if (normalNotification) this.recurReminder(reminder);
+    const remindTimeDue = !reminder.snoozeRemindTime && isDue(reminder);
+    if (remindTimeDue || isSnoozeDue(reminder)) {
+      if (remindTimeDue && isRecurring(reminder)) {
+        this.recurReminder(reminder);
+      }
+      this.snoozeReminder(reminder);
       this.sendNotification(reminder);
     }
   }
@@ -186,17 +199,12 @@ export class AppState {
     });
     if (stopReminder) {
       this.stopReminder(reminder.id);
-    } else {
-      this.snoozeReminder(reminder.id);
     }
     this.saveState();
   }
 
-  snoozeReminder(id: string): void {
-    runInAction(() => {
-      const reminder = this.allReminders[id];
-      reminder.snoozeRemindTime = addMinutes(new Date(), 5);
-    });
+  snoozeReminder(reminder: Reminder): void {
+    reminder.snoozeRemindTime = addMinutes(new Date(), 5);
   }
 
   recurReminder(reminder: Reminder): void {
@@ -220,7 +228,6 @@ export class AppState {
 
     let nextRemindTime: Date | undefined;
     if (reminder.timeRepeat && isToday(remindTime)) {
-      console.log(`remindTime: ${remindTime}`);
       nextRemindTime = remindTime;
     } else if (reminder.dayRepeat) {
       const nextDay = getNextDay(reminder);
@@ -228,7 +235,6 @@ export class AppState {
       nextRemindTime = setMonth(nextDay, getMonth(nextDay));
       nextRemindTime = setDay(nextDay, getDay(nextDay));
     }
-    console.log(`nextRemindTime: ${nextRemindTime}`);
 
     if (nextRemindTime) {
       runInAction(() => {
@@ -250,6 +256,7 @@ export class AppState {
   stopReminder(reminderId: string): void {
     const reminder = this.allReminders[reminderId];
     reminder.stopped = true;
+    reminder.snoozeRemindTime = undefined;
     this.updateWindowBadge();
     this.saveState();
   }
@@ -257,7 +264,7 @@ export class AppState {
   continueReminder(reminderId: string): void {
     this.allReminders[reminderId].stopped = false;
     const reminder = this.allReminders[reminderId];
-    if (isPast(reminder)) this.snoozeReminder(reminderId);
+    if (isPast(reminder)) this.snoozeReminder(reminder);
     this.updateWindowBadge();
     this.saveState();
   }

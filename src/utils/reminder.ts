@@ -10,11 +10,12 @@ import {
   getMinutes,
   differenceInDays,
   nextDay,
+  startOfMinute,
 } from 'date-fns';
 import { Reminder } from 'types';
 
 export function isPast(reminder: Reminder): boolean {
-  return differenceInMinutes(reminder.remindTime, new Date()) < 0;
+  return startOfMinute(reminder.remindTime) <= startOfMinute(new Date());
 }
 
 export function isDue(reminder: Reminder): boolean {
@@ -43,4 +44,8 @@ export function getNextDay(reminder: Reminder): Date {
   nextDay = setHours(nextDay, getHours(reminder.startTime));
   nextDay = setMinutes(nextDay, getMinutes(reminder.startTime));
   return nextDay;
+}
+
+export function isRecurring(reminder: Reminder): boolean {
+  return Boolean(reminder.dayRepeat || reminder.timeRepeat);
 }
