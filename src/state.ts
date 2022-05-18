@@ -20,6 +20,8 @@ import {
   getMinutes,
   differenceInDays,
   isYesterday,
+  setDay,
+  getDay,
 } from 'date-fns';
 import isDefaultReminderGroup from 'utils/is-tag';
 import { getNextDay, isPast, isSnoozeDue } from 'utils/reminder';
@@ -53,25 +55,28 @@ export class AppState {
     makeAutoObservable(this);
   }
 
-  createReminder(options: Omit<Reminder, 'id'>): { id: string } {
-    const id = v4();
-    this.reminderIds.push(id);
-    this.allReminders[id] = {
-      id,
-      ...options,
-      tags: [],
-    };
-    const reminder = this.allReminders[id];
+  createReminder(options: Omit<Reminder, 'id'>) {
+    const reminder = this.makeReminder(options);
     if (!isDefaultReminderGroup(this.selectedGroup)) {
-      this._putTag(id, this.selectedGroup);
+      this._putTag(reminder, this.selectedGroup);
     }
     reminder.stopped = isPast(reminder);
-    if (reminder.dayRepeat || reminder.timeRepeat) {
+    if (isPast(reminder) && (reminder.dayRepeat || reminder.timeRepeat)) {
       this.recurReminder(reminder);
     }
     this.updateWindowBadge();
     this.saveState();
-    return { id };
+  }
+
+  makeReminder(options: Omit<Reminder, 'id'>): Reminder {
+    const id = v4();
+    this.reminderIds.push(id);
+    this.allReminders[id] = {
+      ...options,
+      id,
+      tags: [],
+    };
+    return this.allReminders[id];
   }
 
   async deleteReminder(reminderId: string): Promise<void> {
@@ -95,14 +100,13 @@ export class AppState {
     await fs.writeFile(filePath, jsonString);
   }
 
-  private _putTag(reminderId: string, tag: string): void {
-    const reminder = this.allReminders[reminderId];
+  private _putTag(reminder: Reminder, tag: string): void {
     reminder.tags.push(tag);
     if (!this.allTags[tag]) {
       this.tagNames.push(tag);
       this.allTags[tag] = [];
     }
-    this.allTags[tag].push(reminderId);
+    this.allTags[tag].push(reminder.id);
   }
 
   async init() {
@@ -215,30 +219,27 @@ export class AppState {
     }
 
     let nextRemindTime: Date | undefined;
-    if (
-      reminder.timeRepeat &&
-      remindTime.getDay() === reminder.remindTime.getDay()
-    ) {
+    if (reminder.timeRepeat && isToday(remindTime)) {
+      console.log(`remindTime: ${remindTime}`);
       nextRemindTime = remindTime;
     } else if (reminder.dayRepeat) {
-      nextRemindTime = getNextDay(reminder);
+      const nextDay = getNextDay(reminder);
+      nextRemindTime = setYear(nextDay, getYear(nextDay));
+      nextRemindTime = setMonth(nextDay, getMonth(nextDay));
+      nextRemindTime = setDay(nextDay, getDay(nextDay));
     }
+    console.log(`nextRemindTime: ${nextRemindTime}`);
 
     if (nextRemindTime) {
       runInAction(() => {
-        const { id } = this.createReminder({
-          title: reminder.title,
-          dayRepeat: reminder.dayRepeat,
-          note: reminder.note,
-          startDate: reminder.startDate,
-          startTime: reminder.startTime,
-          stopped: false,
+        const recurred = this.makeReminder({
+          ...reminder,
           remindTime: nextRemindTime!,
-          timeRepeat: reminder.timeRepeat,
+          stopped: false,
           tags: [],
         });
-        for (let tag of reminder.tags) {
-          this._putTag(id, tag);
+        for (let tag of recurred.tags) {
+          this._putTag(recurred, tag);
         }
       });
     }
@@ -326,7 +327,7 @@ export class AppState {
 
   addTag(reminderId: string, tag: string): void {
     runInAction(() => {
-      this._putTag(reminderId, tag);
+      this._putTag(this.allReminders[reminderId], tag);
     });
     this.saveState();
   }
