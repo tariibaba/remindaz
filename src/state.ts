@@ -26,6 +26,7 @@ import {
 import isDefaultReminderGroup from 'utils/is-tag';
 import {
   getNextDay,
+  getNextTime,
   isDue,
   isPast,
   isRecurring,
@@ -208,24 +209,7 @@ export class AppState {
   }
 
   recurReminder(reminder: Reminder): void {
-    const now = new Date();
-    let remindTime = reminder.remindTime;
-    const timeRepeat = reminder.timeRepeat;
-
-    if (reminder.timeRepeat) {
-      // Ensure next remind time for recurring reminders is in the future
-      do {
-        switch (timeRepeat?.unit) {
-          case 'minute':
-            remindTime = addMinutes(remindTime, timeRepeat?.num);
-            break;
-          case 'hour':
-            remindTime = addHours(remindTime, timeRepeat?.num);
-            break;
-        }
-      } while (remindTime.getTime() < now.getTime());
-    }
-
+    let remindTime = getNextTime(reminder);
     let nextRemindTime: Date | undefined;
     if (reminder.timeRepeat && isToday(remindTime)) {
       nextRemindTime = remindTime;
@@ -339,7 +323,7 @@ export class AppState {
     this.saveState();
   }
 
-  stopReminderForToday(reminderId: string): void {
+  fastForwardDay(reminderId: string): void {
     const reminder = this.allReminders[reminderId];
     reminder.stopped = true;
     const newReminderId = v4();
@@ -349,6 +333,21 @@ export class AppState {
       id: newReminderId,
       stopped: false,
       remindTime: getNextDay(reminder),
+    };
+    this.updateWindowBadge();
+    this.saveState();
+  }
+
+  fastForwardTime(reminderId: string): void {
+    const reminder = this.allReminders[reminderId];
+    reminder.stopped = true;
+    const newReminderId = v4();
+    this.reminderIds.push(newReminderId);
+    this.allReminders[newReminderId] = {
+      ...reminder,
+      id: newReminderId,
+      stopped: false,
+      remindTime: getNextTime(reminder),
     };
     this.updateWindowBadge();
     this.saveState();

@@ -11,6 +11,10 @@ import {
   differenceInDays,
   nextDay,
   startOfMinute,
+  addMinutes,
+  addHours,
+  isPast as isDatePast,
+  isToday as isDateToday,
 } from 'date-fns';
 import { Reminder } from 'types';
 
@@ -30,7 +34,6 @@ export function isSnoozeDue(reminder: Reminder): boolean {
 
 export function getNextDay(reminder: Reminder): Date {
   const dayRepeat = reminder.dayRepeat;
-  const today = new Date();
   const add = {
     day: addDays,
     week: addWeeks,
@@ -40,12 +43,29 @@ export function getNextDay(reminder: Reminder): Date {
   let nextDay = reminder.remindTime;
   do {
     nextDay = add(nextDay, dayRepeat?.num!);
-  } while (differenceInDays(nextDay, today) < 0);
+  } while (isDatePast(nextDay));
   nextDay = setHours(nextDay, getHours(reminder.startTime));
   nextDay = setMinutes(nextDay, getMinutes(reminder.startTime));
   return nextDay;
 }
 
+export function getNextTime(reminder: Reminder): Date {
+  let nextTime = reminder.remindTime;
+  const timeRepeat = reminder.timeRepeat!;
+  const add = {
+    minute: addMinutes,
+    hour: addHours,
+  }[timeRepeat.unit];
+  do {
+    nextTime = add(nextTime, timeRepeat.num);
+  } while (isDatePast(nextTime));
+  return nextTime;
+}
+
 export function isRecurring(reminder: Reminder): boolean {
   return Boolean(reminder.dayRepeat || reminder.timeRepeat);
+}
+
+export function isToday(reminder: Reminder): boolean {
+  return isDateToday(reminder.remindTime);
 }

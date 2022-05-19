@@ -35,7 +35,7 @@ import escapeStringRegexp from 'escape-string-regexp';
 import mergeRanges from 'utils/merge-ranges';
 import { red } from '@mui/material/colors';
 import clsx from 'clsx';
-import { isDue } from 'utils/reminder';
+import { isDue, isToday as isReminderToday } from 'utils/reminder';
 
 const useStyles = makeStyles()((theme) => ({
   deleteButton: {
@@ -164,10 +164,16 @@ const MainView = observer(() => {
     setMoreActionsAnchorEl(undefined);
   };
 
-  const handleStopForToday = (reminderId: string) => {
-    state.stopReminderForToday(reminderId);
+  const handleFastForwardDay = (reminderId: string) => {
+    state.fastForwardDay(reminderId);
     handleMoreActionsClose();
   };
+
+  const handleFastForwardTime = (reminderId: string) => {
+    state.fastForwardTime(reminderId);
+    handleMoreActionsClose();
+  };
+
   const [moreActionsReminder, setMoreActionsReminder] = useState<
     Reminder | undefined
   >(undefined);
@@ -374,15 +380,19 @@ const MainView = observer(() => {
       >
         <MenuItem
           disabled={
-            moreActionsReminder?.stopped ||
-            !(
-              moreActionsReminder?.dayRepeat &&
-              isSameDay(moreActionsReminder?.remindTime!, now)
-            )
+            moreActionsReminder?.stopped || !moreActionsReminder?.dayRepeat
           }
-          onClick={() => handleStopForToday(moreActionsReminder?.id!)}
+          onClick={() => handleFastForwardDay(moreActionsReminder?.id!)}
         >
-          Stop for today
+          Fast forward day
+        </MenuItem>
+        <MenuItem
+          disabled={
+            moreActionsReminder?.stopped || !moreActionsReminder?.timeRepeat
+          }
+          onClick={() => handleFastForwardTime(moreActionsReminder?.id!)}
+        >
+          Fast forward time
         </MenuItem>
       </Menu>
     </div>
