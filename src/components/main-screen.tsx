@@ -11,9 +11,9 @@ import { AppStateContext } from 'context';
 const MainScreen = () => {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const state = useContext(AppStateContext)!;
-  const showTextField =
-    ['all', 'active'].includes(state.selectedGroup) ||
-    !isDefaultReminderGroup(state.selectedGroup);
+  const showTextField: boolean =
+    ['all', 'active'].includes(state.selectedGroup!) ||
+    Boolean(state.selectedTag);
 
   return (
     <div

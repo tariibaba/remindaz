@@ -101,9 +101,10 @@ const MainView = observer(() => {
 
   let remindersToShow: Reminder[] = [];
   const selectedGroup = state.selectedGroup;
+  const selectedTag = state.selectedTag;
   const now = new Date();
 
-  if (isDefaultReminderGroup(selectedGroup)) {
+  if (selectedGroup) {
     switch (selectedGroup) {
       case 'active':
         remindersToShow = reminders.filter((reminder) => !reminder.stopped);
@@ -133,9 +134,9 @@ const MainView = observer(() => {
         );
         break;
     }
-  } else {
+  } else if (selectedTag) {
     remindersToShow = reminders.filter((reminder) =>
-      reminder.tags.includes(selectedGroup)
+      reminder.tags.includes(selectedTag)
     );
   }
 

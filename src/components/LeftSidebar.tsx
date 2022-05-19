@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import { observer } from 'mobx-react-lite';
 import React, { useContext } from 'react';
+import { ReminderGroup } from 'types';
 import { AppStateContext } from '../context';
 
 type LeftSidebarProps = {
@@ -26,8 +27,13 @@ const LeftSidebar = (props: LeftSidebarProps) => {
     onClose();
   };
 
-  const onChangeGroup = (group: string) => {
-    state?.changeSelectedGroup(group);
+  const onChangeGroup = (group: ReminderGroup) => {
+    state?.setSelectedGroup(group);
+    onClose();
+  };
+
+  const onChangeTag = (tag: string) => {
+    state?.setSelectedTag(tag);
     onClose();
   };
 
@@ -47,8 +53,10 @@ const LeftSidebar = (props: LeftSidebarProps) => {
         ].map((text) => (
           <ListItemButton
             key={text}
-            selected={text.toLowerCase() === state?.selectedGroup}
-            onClick={() => onChangeGroup(text.toLowerCase())}
+            selected={
+              (text.toLowerCase() as ReminderGroup) === state?.selectedGroup
+            }
+            onClick={() => onChangeGroup(text.toLowerCase() as ReminderGroup)}
           >
             <ListItemText>{text}</ListItemText>
           </ListItemButton>
@@ -64,8 +72,8 @@ const LeftSidebar = (props: LeftSidebarProps) => {
         {state?.tagNames.map((tagName) => (
           <ListItemButton
             key={tagName}
-            selected={tagName.toLowerCase() === state?.selectedGroup}
-            onClick={() => onChangeGroup(tagName)}
+            selected={tagName.toLowerCase() === state?.selectedTag}
+            onClick={() => onChangeTag(tagName)}
           >
             <ListItemText>{tagName}</ListItemText>
           </ListItemButton>

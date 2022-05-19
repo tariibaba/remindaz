@@ -53,7 +53,8 @@ export class AppState {
   sidebarReminderInfoVisible: boolean = false;
   tagNames: string[] = [];
   allTags: Record<string, string[]> = {};
-  selectedGroup: string = 'all';
+  selectedGroup: ReminderGroup | undefined = 'all';
+  selectedTag: string | undefined = undefined;
   query: string = '';
   screen: AppScreen = 'main';
   appSettings?: AppSettings;
@@ -64,8 +65,8 @@ export class AppState {
 
   createReminder(options: Omit<Reminder, 'id'>) {
     const reminder = this.makeReminder(options);
-    if (!isDefaultReminderGroup(this.selectedGroup)) {
-      this._putTag(reminder, this.selectedGroup);
+    if (this.selectedTag) {
+      this._putTag(reminder, this.selectedTag);
     }
     reminder.stopped = isPast(reminder);
     if (isPast(reminder) && (reminder.dayRepeat || reminder.timeRepeat)) {
@@ -369,10 +370,14 @@ export class AppState {
     });
   }
 
-  changeSelectedGroup(newGroup: string): void {
-    runInAction(() => {
-      this.selectedGroup = newGroup;
-    });
+  setSelectedGroup(newGroup: ReminderGroup): void {
+    this.selectedTag = undefined;
+    this.selectedGroup = newGroup;
+  }
+
+  setSelectedTag(newTag: string): void {
+    this.selectedGroup = undefined;
+    this.selectedTag = newTag;
   }
 
   changeScreen(newScreen: AppScreen): void {
