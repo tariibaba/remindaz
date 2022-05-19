@@ -12,7 +12,7 @@ const MainScreen = () => {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const state = useContext(AppStateContext)!;
   const showTextField =
-    state.selectedGroup === 'all' ||
+    ['all', 'active'].includes(state.selectedGroup) ||
     !isDefaultReminderGroup(state.selectedGroup);
 
   return (

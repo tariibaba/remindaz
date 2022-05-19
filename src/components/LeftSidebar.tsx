@@ -36,7 +36,15 @@ const LeftSidebar = (props: LeftSidebarProps) => {
       <Toolbar />
       <Divider />
       <List>
-        {['All', 'Overdue', 'Today', 'Tomorrow', 'Later'].map((text) => (
+        {[
+          'All',
+          'Active',
+          'Stopped',
+          'Overdue',
+          'Today',
+          'Tomorrow',
+          'Later',
+        ].map((text) => (
           <ListItemButton
             key={text}
             selected={text.toLowerCase() === state?.selectedGroup}

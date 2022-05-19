@@ -25,6 +25,8 @@ export type DayUnit = typeof DayUnits[number];
 export type ReadableDays = { num: number; unit: DayUnit };
 
 export const ReminderGroups = [
+  'active',
+  'stopped',
   'overdue',
   'today',
   'tomorrow',

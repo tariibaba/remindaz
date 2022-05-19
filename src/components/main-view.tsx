@@ -105,10 +105,14 @@ const MainView = observer(() => {
 
   if (isDefaultReminderGroup(selectedGroup)) {
     switch (selectedGroup) {
+      case 'active':
+        remindersToShow = reminders.filter((reminder) => !reminder.stopped);
+        break;
+      case 'stopped':
+        remindersToShow = reminders.filter((reminder) => reminder.stopped);
+        break;
       case 'overdue':
-        remindersToShow = reminders.filter(
-          (reminder) => reminder.remindTime.getTime() - now.getTime() < 0
-        );
+        remindersToShow = reminders.filter((reminder) => isDue(reminder));
         break;
       case 'today':
         remindersToShow = reminders.filter(
