@@ -183,16 +183,13 @@ const MainView = observer(() => {
     const okayButton = document.querySelector(
       `.reminder-${id} .toggle-stopped`
     );
-    const deleteButton = document.querySelector(`.reminder-${id} .delete-btn`);
     const moreVertButton = document.querySelector(
       `.reminder-${id} .more-vert-btn`
     );
     const targetNode = event.target as Node;
     if (
       !(
-        okayButton?.contains(targetNode) ||
-        deleteButton?.contains(targetNode) ||
-        moreVertButton?.contains(targetNode)
+        okayButton?.contains(targetNode) || moreVertButton?.contains(targetNode)
       )
     ) {
       state.toggleSidebarReminderInfo(id);
@@ -201,6 +198,7 @@ const MainView = observer(() => {
 
   const handleDeleteClick = (reminderId: string) => {
     state.deleteReminder(reminderId);
+    handleMoreActionsClose();
   };
 
   const toggleStopped = (reminder: Reminder) => {
@@ -327,15 +325,6 @@ const MainView = observer(() => {
                     >
                       {reminder.stopped ? 'Continue' : 'Stop'}
                     </Button>
-                    <div className="delete-btn">
-                      <IconButton
-                        className="delete-btn"
-                        onMouseDown={(event) => event.stopPropagation()}
-                        onClick={() => handleDeleteClick(reminder.id)}
-                      >
-                        <Delete />
-                      </IconButton>
-                    </div>
                     <IconButton
                       onClick={(event) => handleMoreVertClick(event, reminder)}
                       className="more-vert-btn"
@@ -393,6 +382,9 @@ const MainView = observer(() => {
           onClick={() => handleFastForwardTime(moreActionsReminder?.id!)}
         >
           Fast forward time
+        </MenuItem>
+        <MenuItem onClick={() => handleDeleteClick(moreActionsReminder?.id!)}>
+          Delete
         </MenuItem>
       </Menu>
     </div>
