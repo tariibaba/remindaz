@@ -1,6 +1,12 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import { v4 } from 'uuid';
-import { Reminder, ReminderGroup, ReminderGroups, AppSettings } from './types';
+import {
+  Reminder,
+  ReminderGroup,
+  ReminderGroups,
+  AppSettings,
+  SortMode,
+} from './types';
 import { ipcRenderer } from 'electron';
 import fs from 'fs/promises';
 import path from 'path';
@@ -58,6 +64,9 @@ export class AppState {
   query: string = '';
   screen: AppScreen = 'main';
   appSettings?: AppSettings;
+  sortMode?: SortMode = 'date';
+  reminderMoreAnchorEl?: HTMLElement = undefined;
+  reminderMore?: Reminder = undefined;
 
   constructor() {
     makeAutoObservable(this);
@@ -393,9 +402,14 @@ export class AppState {
     });
     this.saveState();
   }
-}
 
-function toNearestMinute(date: Date): Date {
-  const oneMinute = 1000 * 60;
-  return new Date(Math.floor(date.getTime() / oneMinute) * oneMinute);
+  openReminderMore(reminderId: string, anchorEl: HTMLElement) {
+    this.reminderMoreAnchorEl = anchorEl;
+    this.reminderMore = this.allReminders[reminderId];
+  }
+
+  closeReminderMore() {
+    this.reminderMoreAnchorEl = undefined;
+    this.reminderMore = undefined;
+  }
 }

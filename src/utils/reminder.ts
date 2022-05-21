@@ -15,6 +15,9 @@ import {
   addHours,
   isPast as isDatePast,
   isToday as isDateToday,
+  isTomorrow as isDateTomorrow,
+  differenceInWeeks,
+  startOfWeek,
 } from 'date-fns';
 import { Reminder } from 'types';
 
@@ -68,4 +71,30 @@ export function isRecurring(reminder: Reminder): boolean {
 
 export function isToday(reminder: Reminder): boolean {
   return isDateToday(reminder.remindTime);
+}
+
+export function isTomorrow(reminder: Reminder): boolean {
+  return isDateTomorrow(reminder.remindTime);
+}
+
+export function isLater(reminder: Reminder): boolean {
+  return (
+    differenceInWeeks(
+      startOfWeek(reminder.remindTime),
+      startOfWeek(new Date())
+    ) > 1
+  );
+}
+
+export function isNextWeek(reminder: Reminder): boolean {
+  return (
+    differenceInWeeks(
+      startOfWeek(reminder.remindTime),
+      startOfWeek(new Date())
+    ) === 1
+  );
+}
+
+export function isActive(reminder: Reminder): boolean {
+  return !reminder.stopped;
 }

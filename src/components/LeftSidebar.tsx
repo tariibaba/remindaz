@@ -42,15 +42,7 @@ const LeftSidebar = (props: LeftSidebarProps) => {
       <Toolbar />
       <Divider />
       <List>
-        {[
-          'All',
-          'Active',
-          'Stopped',
-          'Overdue',
-          'Today',
-          'Tomorrow',
-          'Later',
-        ].map((text) => (
+        {['All', 'Active', 'Stopped'].map((text) => (
           <ListItemButton
             key={text}
             selected={

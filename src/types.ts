@@ -24,17 +24,11 @@ export const DayUnits = ['day', 'week', 'month', 'year'] as const;
 export type DayUnit = typeof DayUnits[number];
 export type ReadableDays = { num: number; unit: DayUnit };
 
-export const ReminderGroups = [
-  'active',
-  'stopped',
-  'overdue',
-  'today',
-  'tomorrow',
-  'later',
-  'all',
-] as const;
+export const ReminderGroups = ['active', 'stopped', 'all'] as const;
 export type ReminderGroup = typeof ReminderGroups[number];
 
 export type AppSettings = {
   runAtStartup: boolean;
 };
+
+export type SortMode = 'date';
