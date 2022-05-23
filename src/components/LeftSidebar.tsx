@@ -28,7 +28,7 @@ const LeftSidebar = (props: LeftSidebarProps) => {
   };
 
   const onChangeList = (group: ReminderList) => {
-    state?.setSelectedList(group);
+    state?.setSelectedDefaultList(group);
     onClose();
   };
 

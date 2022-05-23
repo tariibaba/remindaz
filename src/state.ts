@@ -118,6 +118,8 @@ export class AppState {
       tagNames: this.tagNames,
       appSettings: this.appSettings,
       reminderListOpenGroups: this.reminderListOpenGroups,
+      selectedDefaultList: this.selectedDefaultList,
+      selectedTag: this.selectedTag,
     };
     const jsonString = JSON.stringify(data, null, 2);
     await fs.writeFile(filePath, jsonString);
@@ -181,6 +183,8 @@ export class AppState {
         this.allTags = data.allTags;
         this.appSettings = { ...defaultSettings, ...data.appSettings };
         this.reminderListOpenGroups = data.reminderListOpenGroups || {};
+        this.selectedDefaultList = data.selectedDefaultList || 'all';
+        this.selectedTag = data.selectedTag;
       });
     } catch {
       await this.saveState();
@@ -386,14 +390,16 @@ export class AppState {
     });
   }
 
-  setSelectedList(newGroup: ReminderDefaultList): void {
+  setSelectedDefaultList(list: ReminderDefaultList): void {
     this.selectedTag = undefined;
-    this.selectedDefaultList = newGroup;
+    this.selectedDefaultList = list;
+    this.saveState();
   }
 
   setSelectedTag(newTag: string): void {
     this.selectedDefaultList = undefined;
     this.selectedTag = newTag;
+    this.saveState();
   }
 
   changeScreen(newScreen: AppScreen): void {
