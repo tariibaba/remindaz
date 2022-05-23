@@ -1,4 +1,4 @@
-import { makeAutoObservable, runInAction } from 'mobx';
+import { makeAutoObservable } from 'mobx';
 import { v4 } from 'uuid';
 import {
   Reminder,
@@ -102,10 +102,8 @@ export class AppState {
   }
 
   async deleteReminder(reminderId: string): Promise<void> {
-    runInAction(() => {
-      this.reminderIds = this.reminderIds.filter((id) => id !== reminderId);
-      delete this.allReminders[reminderId];
-    });
+    this.reminderIds = this.reminderIds.filter((id) => id !== reminderId);
+    delete this.allReminders[reminderId];
     await this.saveState();
     this.updateWindowBadge();
   }
@@ -176,16 +174,14 @@ export class AppState {
         }
         return value;
       });
-      runInAction(() => {
-        this.reminderIds = data.reminderIds;
-        this.allReminders = data.allReminders;
-        this.tagNames = data.tagNames;
-        this.allTags = data.allTags;
-        this.appSettings = { ...defaultSettings, ...data.appSettings };
-        this.reminderListOpenGroups = data.reminderListOpenGroups || {};
-        this.selectedDefaultList = data.selectedDefaultList || 'all';
-        this.selectedTag = data.selectedTag;
-      });
+      this.reminderIds = data.reminderIds;
+      this.allReminders = data.allReminders;
+      this.tagNames = data.tagNames;
+      this.allTags = data.allTags;
+      this.appSettings = { ...defaultSettings, ...data.appSettings };
+      this.reminderListOpenGroups = data.reminderListOpenGroups || {};
+      this.selectedDefaultList = data.selectedDefaultList || 'all';
+      this.selectedTag = data.selectedTag;
     } catch {
       await this.saveState();
     }
@@ -242,17 +238,15 @@ export class AppState {
     }
 
     if (nextRemindTime) {
-      runInAction(() => {
-        const recurred = this.makeReminder({
-          ...reminder,
-          remindTime: nextRemindTime!,
-          stopped: false,
-          tags: [],
-        });
-        for (let tag of recurred.tags) {
-          this._putTag(recurred, tag);
-        }
+      const recurred = this.makeReminder({
+        ...reminder,
+        remindTime: nextRemindTime!,
+        stopped: false,
+        tags: [],
       });
+      for (let tag of recurred.tags) {
+        this._putTag(recurred, tag);
+      }
     }
 
     this.saveState();
@@ -275,22 +269,16 @@ export class AppState {
   }
 
   loadWindowMode(miniMode?: boolean): void {
-    runInAction(() => {
-      this.miniMode = miniMode;
-    });
+    this.miniMode = miniMode;
   }
 
   showSidebarReminderInfo(reminderId: string): void {
-    runInAction(() => {
-      this.sidebarReminderInfo = reminderId;
-      this.sidebarReminderInfoVisible = true;
-    });
+    this.sidebarReminderInfo = reminderId;
+    this.sidebarReminderInfoVisible = true;
   }
 
   hideSidebarReminderInfo(): void {
-    runInAction(() => {
-      this.sidebarReminderInfoVisible = false;
-    });
+    this.sidebarReminderInfoVisible = false;
   }
 
   toggleSidebarReminderInfo(reminderId: string): void {
@@ -319,28 +307,24 @@ export class AppState {
       >
     >
   ) {
-    runInAction(() => {
-      this.allReminders[id] = { ...this.allReminders[id], ...info };
-      const reminder = this.allReminders[id];
-      if (info.startDate || info.startTime) {
-        const startDate = info.startDate || reminder.startDate;
-        const startTime = info.startTime || reminder.startTime;
-        let newRemindTime = setDate(reminder.startDate, getDate(startDate));
-        newRemindTime = setHours(newRemindTime, getHours(startTime));
-        newRemindTime = setMinutes(newRemindTime, getMinutes(startTime));
-        newRemindTime = setMonth(newRemindTime, getMonth(startDate));
-        newRemindTime = setYear(newRemindTime, getYear(startDate));
-        this.allReminders[id].remindTime = newRemindTime;
-      }
-    });
+    this.allReminders[id] = { ...this.allReminders[id], ...info };
+    const reminder = this.allReminders[id];
+    if (info.startDate || info.startTime) {
+      const startDate = info.startDate || reminder.startDate;
+      const startTime = info.startTime || reminder.startTime;
+      let newRemindTime = setDate(reminder.startDate, getDate(startDate));
+      newRemindTime = setHours(newRemindTime, getHours(startTime));
+      newRemindTime = setMinutes(newRemindTime, getMinutes(startTime));
+      newRemindTime = setMonth(newRemindTime, getMonth(startDate));
+      newRemindTime = setYear(newRemindTime, getYear(startDate));
+      this.allReminders[id].remindTime = newRemindTime;
+    }
     this.updateWindowBadge();
     this.saveState();
   }
 
   addTag(reminderId: string, tag: string): void {
-    runInAction(() => {
-      this._putTag(this.allReminders[reminderId], tag);
-    });
+    this._putTag(this.allReminders[reminderId], tag);
     this.saveState();
   }
 
@@ -375,19 +359,13 @@ export class AppState {
   }
 
   removeTag(reminderId: string, tag: string): void {
-    runInAction(() => {
-      const reminder = this.allReminders[reminderId];
-      reminder.tags = reminder.tags.filter(
-        (reminderTag) => reminderTag !== tag
-      );
-    });
+    const reminder = this.allReminders[reminderId];
+    reminder.tags = reminder.tags.filter((reminderTag) => reminderTag !== tag);
     this.saveState();
   }
 
   changeQuery(query: string): void {
-    runInAction(() => {
-      this.query = query;
-    });
+    this.query = query;
   }
 
   setSelectedDefaultList(list: ReminderDefaultList): void {
@@ -403,16 +381,12 @@ export class AppState {
   }
 
   changeScreen(newScreen: AppScreen): void {
-    runInAction(() => {
-      this.screen = newScreen;
-    });
+    this.screen = newScreen;
   }
 
   async setRunAtStartup(value: boolean): Promise<void> {
     await ipcRenderer.invoke('change-run-at-startup', { value });
-    runInAction(() => {
-      this.appSettings!.runAtStartup = value;
-    });
+    this.appSettings!.runAtStartup = value;
     this.saveState();
   }
 
