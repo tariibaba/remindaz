@@ -20,12 +20,12 @@ export type ReminderDayRepeatPickerProps = {
 const ReminderDayRepeatPicker = (props: ReminderDayRepeatPickerProps) => {
   const { onSave, popoverProps, onCancel, onChange, readableDay } = props;
   const onNumChange = (event) => {
-    const value = event.target.value;
+    const value = event.currentTarget.value;
     onChange({ ...readableDay, num: Number(value) });
   };
 
   const onUnitChange = (event) => {
-    const value = event.target.value;
+    const value = event.currentTarget.value;
     onChange({ ...readableDay, unit: value });
   };
 

@@ -42,7 +42,7 @@ function getDefaultNewReminder(): Omit<Reminder, 'id'> {
 const CreateReminderTextField = observer(() => {
   const prevNewReminderTitle = useRef<string>('');
   const onInputChange = (event) => {
-    const value = event.target.value;
+    const value = event.currentTarget.value;
     if (!prevNewReminderTitle.current) {
       setNewReminder({ ...getDefaultNewReminder(), title: value });
     } else setNewReminder({ ...newReminder!, title: value });

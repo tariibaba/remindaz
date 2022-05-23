@@ -26,7 +26,7 @@ const SettingsScreen = () => {
   const { classes } = useStyles();
 
   const onChangeRunAtStartup = (event) => {
-    state.setRunAtStartup(event.target.checked);
+    state.setRunAtStartup(event.currentTarget.checked);
   };
 
   return (

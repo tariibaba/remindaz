@@ -19,7 +19,7 @@ const SearchBar = (props: SearchBarProps) => {
   };
 
   const onInputChange = (event) => {
-    onChange(event.target.value);
+    onChange(event.currentTarget.value);
     onSearch();
   };
 

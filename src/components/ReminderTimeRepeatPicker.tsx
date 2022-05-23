@@ -21,11 +21,11 @@ const ReminderTimeRepeatPicker = (props: ReminderTimeRepeatPickerProps) => {
   const { popoverProps, onSave, onCancel, onChange, readableSeconds } = props;
 
   const onNumChange = (event) => {
-    onChange({ ...readableSeconds!, num: Number(event.target.value) });
+    onChange({ ...readableSeconds!, num: Number(event.currentTarget.value) });
   };
 
   const onValueChange = (event) => {
-    onChange({ ...readableSeconds!, unit: event.target.value });
+    onChange({ ...readableSeconds!, unit: event.currentTarget.value });
   };
 
   return (
