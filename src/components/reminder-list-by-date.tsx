@@ -58,9 +58,7 @@ const ReminderListByDate = (props: ReminderListByDateProps) => {
             groupName={groupName}
             reminders={groupReminders}
           />
-        ) : (
-          <></>
-        );
+        ) : undefined;
       })}
     </>
   );
