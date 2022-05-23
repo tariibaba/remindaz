@@ -97,7 +97,7 @@ const MainView = observer(() => {
           list
         ) : state.sortMode ? (
           ['all', 'active'].includes(selectedList!) || selectedTag ? (
-            <>
+            <React.Fragment key={state.selectedList}>
               <ReminderListByDate reminders={remindersToShow} />
               {stoppedInGroup.length > 0 && (
                 <ReminderListGroup
@@ -105,7 +105,7 @@ const MainView = observer(() => {
                   reminders={stoppedInGroup}
                 />
               )}
-            </>
+            </React.Fragment>
           ) : selectedList === 'stopped' ? (
             list
           ) : undefined
