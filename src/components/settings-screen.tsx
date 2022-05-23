@@ -47,7 +47,7 @@ const SettingsScreen = () => {
           <div className={classes.setting}>
             <Typography>Run at startup</Typography>
             <Switch
-              value={state.appSettings?.runAtStartup}
+              checked={state.appSettings?.runAtStartup}
               onChange={onChangeRunAtStartup}
             />
           </div>

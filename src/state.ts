@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx';
+import { makeAutoObservable, runInAction } from 'mobx';
 import { v4 } from 'uuid';
 import {
   Reminder,
@@ -385,8 +385,10 @@ export class AppState {
   }
 
   async setRunAtStartup(value: boolean): Promise<void> {
-    await ipcRenderer.invoke('change-run-at-startup', { value });
-    this.appSettings!.runAtStartup = value;
+    ipcRenderer.invoke('change-run-at-startup', { value });
+    runInAction(() => {
+      this.appSettings!.runAtStartup = value;
+    });
     this.saveState();
   }
 
