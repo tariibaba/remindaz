@@ -12,7 +12,7 @@ const MainScreen = () => {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const state = useContext(AppStateContext)!;
   const showTextField: boolean =
-    ['all', 'active'].includes(state.selectedGroup!) ||
+    ['all', 'active'].includes(state.selectedDefaultList!) ||
     Boolean(state.selectedTag);
 
   return (

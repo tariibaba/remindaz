@@ -28,7 +28,7 @@ import { observer } from 'mobx-react';
 import React, { useContext, useRef, useState } from 'react';
 import isDefaultReminderGroup from 'utils/is-tag';
 import { AppStateContext } from '../context';
-import { Reminder, ReminderGroup } from '../types';
+import { Reminder, ReminderList } from '../types';
 import ReminderListItem from './reminder-list-item';
 import ReminderListByDate from './reminder-list-by-date';
 import ReminderListGroup from './reminder-list-group';
@@ -39,11 +39,11 @@ const MainView = observer(() => {
   const reminders = state.reminderIds.map((id) => state.allReminders[id]);
 
   let remindersToShow: Reminder[] = [];
-  const selectedGroup = state.selectedGroup;
+  const selectedList = state.selectedDefaultList;
   const selectedTag = state.selectedTag;
 
-  if (selectedGroup) {
-    switch (selectedGroup) {
+  if (selectedList) {
+    switch (selectedList) {
       case 'active':
         remindersToShow = reminders.filter((reminder) => !reminder.stopped);
         break;
@@ -96,18 +96,17 @@ const MainView = observer(() => {
         isQuery ? (
           list
         ) : state.sortMode ? (
-          ['all', 'active'].includes(selectedGroup!) || selectedTag ? (
+          ['all', 'active'].includes(selectedList!) || selectedTag ? (
             <>
               <ReminderListByDate reminders={remindersToShow} />
               {stoppedInGroup.length > 0 && (
                 <ReminderListGroup
                   groupName="Stopped"
                   reminders={stoppedInGroup}
-                  open={false}
                 />
               )}
             </>
-          ) : selectedGroup === 'stopped' ? (
+          ) : selectedList === 'stopped' ? (
             list
           ) : undefined
         ) : (

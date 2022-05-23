@@ -98,3 +98,11 @@ export function isNextWeek(reminder: Reminder): boolean {
 export function isActive(reminder: Reminder): boolean {
   return !reminder.stopped;
 }
+
+export function isLaterThisWeek(reminder: Reminder): boolean {
+  const now = new Date();
+  return (
+    differenceInDays(reminder.remindTime, now) > 1 &&
+    startOfWeek(reminder.remindTime).getTime() === startOfWeek(now).getTime()
+  );
+}

@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { observer } from 'mobx-react-lite';
 import React, { useContext } from 'react';
-import { ReminderGroup } from 'types';
+import { ReminderList } from 'types';
 import { AppStateContext } from '../context';
 
 type LeftSidebarProps = {
@@ -27,8 +27,8 @@ const LeftSidebar = (props: LeftSidebarProps) => {
     onClose();
   };
 
-  const onChangeGroup = (group: ReminderGroup) => {
-    state?.setSelectedGroup(group);
+  const onChangeList = (group: ReminderList) => {
+    state?.setSelectedList(group);
     onClose();
   };
 
@@ -46,9 +46,10 @@ const LeftSidebar = (props: LeftSidebarProps) => {
           <ListItemButton
             key={text}
             selected={
-              (text.toLowerCase() as ReminderGroup) === state?.selectedGroup
+              (text.toLowerCase() as ReminderList) ===
+              state?.selectedDefaultList
             }
-            onClick={() => onChangeGroup(text.toLowerCase() as ReminderGroup)}
+            onClick={() => onChangeList(text.toLowerCase() as ReminderList)}
           >
             <ListItemText>{text}</ListItemText>
           </ListItemButton>

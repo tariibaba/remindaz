@@ -6,27 +6,30 @@ import {
   ListItemButton,
   ListItemText,
 } from '@mui/material';
-import React, { useState } from 'react';
-import { Reminder } from 'types';
+import { AppStateContext } from 'context';
+import { observer } from 'mobx-react-lite';
+import React, { useContext, useState } from 'react';
+import { Reminder, ReminderListGroup as ReminderListGroupType } from 'types';
 import ReminderListItem from './reminder-list-item';
 
 type ReminderListGroupProps = {
-  groupName: string;
+  groupName: ReminderListGroupType;
   reminders: Reminder[];
-  open?: boolean;
 };
 
-const ReminderListGroup = (props: ReminderListGroupProps) => {
-  const [open, setOpen] = useState<boolean>(
-    props.open === undefined ? true : props.open
-  );
+const ReminderListGroup = observer((props: ReminderListGroupProps) => {
   const { groupName, reminders } = props;
+  const state = useContext(AppStateContext)!;
+  const open = state.isReminderListGroupOpen(groupName);
+  const handleToggleReminderListGroupOpen = () => {
+    state.toggleReminderListGroupOpen(groupName);
+  };
 
   return (
     <ListItem style={{ display: 'flex', flexDirection: 'column' }}>
       {' '}
       <ListItemButton
-        onClick={() => setOpen(!open)}
+        onClick={handleToggleReminderListGroupOpen}
         style={{
           alignSelf: 'flex-start',
           width: '100%',
@@ -44,6 +47,6 @@ const ReminderListGroup = (props: ReminderListGroupProps) => {
       </Collapse>
     </ListItem>
   );
-};
+});
 
 export default ReminderListGroup;

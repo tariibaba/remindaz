@@ -2,10 +2,11 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import { v4 } from 'uuid';
 import {
   Reminder,
-  ReminderGroup,
-  ReminderGroups,
+  ReminderList as ReminderDefaultList,
+  ReminderLists,
   AppSettings,
   SortMode,
+  ReminderListGroup,
 } from './types';
 import { ipcRenderer } from 'electron';
 import fs from 'fs/promises';
@@ -59,7 +60,7 @@ export class AppState {
   sidebarReminderInfoVisible: boolean = false;
   tagNames: string[] = [];
   allTags: Record<string, string[]> = {};
-  selectedGroup: ReminderGroup | undefined = 'all';
+  selectedDefaultList: ReminderDefaultList | undefined = 'all';
   selectedTag: string | undefined = undefined;
   query: string = '';
   screen: AppScreen = 'main';
@@ -67,6 +68,10 @@ export class AppState {
   sortMode?: SortMode = 'date';
   reminderMoreAnchorEl?: HTMLElement = undefined;
   reminderMore?: Reminder = undefined;
+  reminderListOpenGroups: Record<
+    ReminderDefaultList | string,
+    Partial<Record<ReminderListGroup, boolean>>
+  > = {};
 
   constructor() {
     makeAutoObservable(this);
@@ -112,6 +117,7 @@ export class AppState {
       allTags: this.allTags,
       tagNames: this.tagNames,
       appSettings: this.appSettings,
+      reminderListOpenGroups: this.reminderListOpenGroups,
     };
     const jsonString = JSON.stringify(data, null, 2);
     await fs.writeFile(filePath, jsonString);
@@ -174,6 +180,7 @@ export class AppState {
         this.tagNames = data.tagNames;
         this.allTags = data.allTags;
         this.appSettings = { ...defaultSettings, ...data.appSettings };
+        this.reminderListOpenGroups = data.reminderListOpenGroups || {};
       });
     } catch {
       await this.saveState();
@@ -379,13 +386,13 @@ export class AppState {
     });
   }
 
-  setSelectedGroup(newGroup: ReminderGroup): void {
+  setSelectedList(newGroup: ReminderDefaultList): void {
     this.selectedTag = undefined;
-    this.selectedGroup = newGroup;
+    this.selectedDefaultList = newGroup;
   }
 
   setSelectedTag(newTag: string): void {
-    this.selectedGroup = undefined;
+    this.selectedDefaultList = undefined;
     this.selectedTag = newTag;
   }
 
@@ -411,5 +418,41 @@ export class AppState {
   closeReminderMore() {
     this.reminderMoreAnchorEl = undefined;
     this.reminderMore = undefined;
+  }
+
+  openReminderListGroup(groupName: string) {
+    if (!this.reminderListOpenGroups[this.selectedList]) {
+      this.reminderListOpenGroups[this.selectedList] = {};
+    }
+    this.reminderListOpenGroups[this.selectedList][groupName] = true;
+    this.saveState();
+  }
+
+  closeReminderListGroup(groupName: string) {}
+
+  get selectedList(): string {
+    return (this.selectedDefaultList || this.selectedTag)!;
+  }
+
+  isReminderListGroupOpen(groupName): boolean {
+    const openState = (this.reminderListOpenGroups[this.selectedList] || {})[
+      groupName
+    ];
+    const open: boolean =
+      openState === undefined
+        ? groupName === 'Stopped'
+          ? false
+          : true
+        : openState;
+    return open;
+  }
+
+  toggleReminderListGroupOpen(groupName): void {
+    if (!this.reminderListOpenGroups[this.selectedList]) {
+      this.reminderListOpenGroups[this.selectedList] = {};
+    }
+    this.reminderListOpenGroups[this.selectedList][groupName] =
+      !this.isReminderListGroupOpen(groupName);
+    this.saveState();
   }
 }
