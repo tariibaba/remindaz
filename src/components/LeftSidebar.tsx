@@ -4,6 +4,7 @@ import {
   Drawer,
   List,
   ListItemButton,
+  ListItemIcon,
   ListItemText,
   Toolbar,
   Typography,
@@ -12,6 +13,8 @@ import { observer } from 'mobx-react-lite';
 import React, { useContext } from 'react';
 import { ReminderList } from 'types';
 import { AppStateContext } from '../context';
+import { AllInclusive } from '@mui/icons-material';
+import { StopCircleOutline, ProgressClock, Tag } from 'mdi-material-ui';
 
 type LeftSidebarProps = {
   open: boolean;
@@ -37,6 +40,12 @@ const LeftSidebar = (props: LeftSidebarProps) => {
     onClose();
   };
 
+  const defaultListIcons = {
+    All: <AllInclusive />,
+    Active: <ProgressClock />,
+    Stopped: <StopCircleOutline />,
+  };
+
   const drawerContent = (
     <>
       <Toolbar />
@@ -51,6 +60,7 @@ const LeftSidebar = (props: LeftSidebarProps) => {
             }
             onClick={() => onChangeList(text.toLowerCase() as ReminderList)}
           >
+            <ListItemIcon>{defaultListIcons[text]}</ListItemIcon>
             <ListItemText>{text}</ListItemText>
           </ListItemButton>
         ))}
@@ -68,6 +78,9 @@ const LeftSidebar = (props: LeftSidebarProps) => {
             selected={tagName.toLowerCase() === state?.selectedTag}
             onClick={() => onChangeTag(tagName)}
           >
+            <ListItemIcon>
+              <Tag />
+            </ListItemIcon>
             <ListItemText>{tagName}</ListItemText>
           </ListItemButton>
         ))}

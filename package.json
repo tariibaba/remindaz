@@ -38,6 +38,7 @@
     "electron-devtools-installer": "^3.2.0",
     "electron-windows-badge": "^1.1.0",
     "escape-string-regexp": "^5.0.0",
+    "mdi-material-ui": "^7.3.0",
     "mobx": "^6.4.2",
     "mobx-react": "^7.3.0",
     "node-notifier": "^10.0.1",

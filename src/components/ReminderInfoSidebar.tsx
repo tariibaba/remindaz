@@ -33,6 +33,7 @@ import ReminderDatePicker from './ReminderDatePicker';
 import ReminderDayRepeatPicker from './ReminderDayRepeatPicker';
 import ReminderTimePicker from './ReminderTimePicker';
 import ReminderTimeRepeatPicker from './ReminderTimeRepeatPicker';
+import { Tag } from 'mdi-material-ui';
 
 const ReminderInfoSidebar = () => {
   const state = useContext(AppStateContext)!;
@@ -302,7 +303,10 @@ const ReminderInfoSidebar = () => {
             </ListItem>
           </List>
         </div>
-        <Typography>Tags</Typography>
+        <div style={{ display: 'flex', marginBottom: '8px' }}>
+          <Tag sx={{ color: '#616161', marginRight: '8px' }} />
+          <Typography variant="subtitle2">Tags</Typography>
+        </div>
         <Paper
           sx={{
             display: 'flex',

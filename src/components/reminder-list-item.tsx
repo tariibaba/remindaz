@@ -27,6 +27,7 @@ import { isDue } from 'utils/reminder';
 import escapeStringRegexp from 'escape-string-regexp';
 import mergeRanges from 'utils/merge-ranges';
 import wrapInHtmlTag from 'utils/wrap-in-html-tag';
+import { Tag } from 'mdi-material-ui';
 
 const useStyles = makeStyles()((theme) => ({
   deleteButton: {
@@ -182,7 +183,12 @@ const ReminderListItem = observer((props: ReminderListItemProps) => {
                 sx={{ marginLeft: '8px' }}
               />
               {reminder.tags.map((tag) => (
-                <Chip key={tag} label={tag} style={{ marginLeft: '8px' }} />
+                <Chip
+                  key={tag}
+                  label={tag}
+                  style={{ marginLeft: '8px' }}
+                  icon={<Tag />}
+                />
               ))}
             </div>
           </div>
