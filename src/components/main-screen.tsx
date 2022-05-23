@@ -7,6 +7,7 @@ import isDefaultReminderGroup from 'utils/is-tag';
 import CreateReminderTextField from './CreateReminderTextField';
 import ReminderInfoSidebar from './ReminderInfoSidebar';
 import { AppStateContext } from 'context';
+import { Divider } from '@mui/material';
 
 const MainScreen = () => {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);

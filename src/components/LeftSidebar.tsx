@@ -15,6 +15,7 @@ import { ReminderList } from 'types';
 import { AppStateContext } from '../context';
 import { AllInclusive } from '@mui/icons-material';
 import { StopCircleOutline, ProgressClock, Tag } from 'mdi-material-ui';
+import { makeStyles } from '../make-styles';
 
 type LeftSidebarProps = {
   open: boolean;
@@ -88,7 +89,14 @@ const LeftSidebar = (props: LeftSidebarProps) => {
     </>
   );
   return (
-    <Box>
+    <Box
+      sx={{
+        '& .MuiListItemIcon-root': {
+          minWidth: 'fit-content',
+          marginRight: '16px',
+        },
+      }}
+    >
       <Drawer
         open={open}
         sx={{ display: { sm: 'block', lg: 'none' }, position: 'fixed' }}

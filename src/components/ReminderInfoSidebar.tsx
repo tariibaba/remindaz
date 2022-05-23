@@ -1,15 +1,12 @@
 import {
   AccessAlarm,
-  ArrowRight,
   CalendarToday,
   Close,
   EventRepeat,
   Refresh,
-  KeyboardArrowRight,
   Add,
 } from '@mui/icons-material';
 import {
-  Button,
   Chip,
   IconButton,
   List,
@@ -25,7 +22,7 @@ import { format } from 'date-fns';
 import { observer } from 'mobx-react';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AppStateContext } from '../context';
-import { ReadableDays, ReadableSeconds, Reminder } from '../types';
+import { ReadableDays, ReadableSeconds } from '../types';
 import getReadableDay from '../utils/readable-date';
 import * as readableDay from '../utils/readable-day';
 import * as readableSecond from '../utils/readable-second';
@@ -34,6 +31,30 @@ import ReminderDayRepeatPicker from './ReminderDayRepeatPicker';
 import ReminderTimePicker from './ReminderTimePicker';
 import ReminderTimeRepeatPicker from './ReminderTimeRepeatPicker';
 import { Tag } from 'mdi-material-ui';
+import { makeStyles } from 'make-styles';
+import clsx from 'clsx';
+
+const useStyles = makeStyles()(() => ({
+  sidebar: {
+    width: 300,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    boxSizing: 'border-box',
+    paddingLeft: '16px',
+    paddingRight: '16px',
+    paddingBottom: '16px',
+    overflowY: 'auto',
+    borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
+    '& .MuiListItemIcon-root': {
+      minWidth: 'fit-content',
+      marginRight: '16px',
+    },
+  },
+  sidebarHidden: {
+    display: 'none',
+  },
+}));
 
 const ReminderInfoSidebar = () => {
   const state = useContext(AppStateContext)!;
@@ -186,20 +207,15 @@ const ReminderInfoSidebar = () => {
     state.removeTag(reminder?.id!, tag);
   };
 
+  const { classes } = useStyles();
+
   return (
     <>
       <div
-        style={{
-          width: 300,
-          display: state.sidebarReminderInfoVisible ? 'flex' : 'none',
-          flexDirection: 'column',
-          alignItems: 'stretch',
-          boxSizing: 'border-box',
-          paddingLeft: '16px',
-          paddingRight: '16px',
-          paddingBottom: '16px',
-          overflowY: 'auto',
-        }}
+        className={clsx(
+          classes.sidebar,
+          !state.sidebarReminderInfoVisible && classes.sidebarHidden
+        )}
       >
         <div
           style={{
