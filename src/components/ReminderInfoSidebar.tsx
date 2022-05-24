@@ -209,6 +209,12 @@ const ReminderInfoSidebar = () => {
 
   const { classes } = useStyles();
 
+  useEffect(() => {
+    if (!state.sidebarReminderInfoVisible) {
+      setNewTag('');
+    }
+  }, [state.sidebarReminderInfoVisible]);
+
   return (
     <>
       <div
