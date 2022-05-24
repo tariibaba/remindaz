@@ -104,6 +104,7 @@ export class AppState {
   async deleteReminder(reminderId: string): Promise<void> {
     this.reminderIds = this.reminderIds.filter((id) => id !== reminderId);
     delete this.allReminders[reminderId];
+    if (this.sidebarReminderInfo === reminderId) this.hideSidebarReminderInfo();
     await this.saveState();
     this.updateWindowBadge();
   }
