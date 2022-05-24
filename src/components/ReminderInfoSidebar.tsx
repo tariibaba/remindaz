@@ -70,7 +70,7 @@ const ReminderInfoSidebar = () => {
   }, [state.sidebarReminderInfo]);
 
   const onTitleInputChange = (event) => {
-    const value = event.currentTarget.value;
+    const value = event.target.value;
     setTitleInputValue(value);
   };
 
@@ -173,7 +173,7 @@ const ReminderInfoSidebar = () => {
     reminder?.note!
   );
   const onNoteTextFieldChange = (event) => {
-    setNoteTextFieldValue(event.currentTarget.value);
+    setNoteTextFieldValue(event.target.value);
   };
   const onNoteTextFieldBlur = () => {
     state.editReminder(reminder?.id!, { note: noteTextFieldValue });
@@ -181,7 +181,7 @@ const ReminderInfoSidebar = () => {
 
   const [newTag, setNewTag] = useState<string>('');
   const onTagTextFieldChange = (event) => {
-    setNewTag(event.currentTarget.value);
+    setNewTag(event.target.value);
   };
 
   const onTagTextFieldKeydown = (event) => {
