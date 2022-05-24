@@ -10,12 +10,13 @@ Reminders is focused on **reminders**, not tasks. There is no concept of task co
 
 ## Features
 - Beautiful and clean user interface.
-- Create new reminders fast.
+- Create new reminders quickly.
 - Get native desktop notifications for reminders when due.
 - Keep reminders visible at all times with sticky mini mode.
 - Repeat reminders throughout the day (every X minutes or hours).
 - Repeat reminders every X days (weeks, months, or years).
-- Group reminders with multiple tags.
+- Fast forward reminders by day or time.
+- Categorize reminders with multiple tags.
 - Run app at startup to keep getting reminders on computer restart.
 - Continue getting regular "snooze" notifications once a reminder is due.
 - Get notifications for reminders you missed (when your computer was turned off).
