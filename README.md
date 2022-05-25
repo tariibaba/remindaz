@@ -1,4 +1,4 @@
-# Reminders by Tari Ibaba
+# Reminders
 
 Beautiful cross-platform app to store all information (tasks, events, etc.) you need to remember.
 
