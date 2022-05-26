@@ -68,7 +68,6 @@ function createWindow() {
   const indexHtmlUrl = url.pathToFileURL(
     path.resolve(__dirname, './index.html')
   ).href;
-  mainWindow.webContents.executeJavaScript(`console.log('is Dev: ${isDev}');`);
   if (app.isPackaged && !isDev) {
     globalShortcut.register('CommandOrControl+R', () => {});
     mainWindow.setMenu(null);
