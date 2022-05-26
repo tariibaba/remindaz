@@ -227,9 +227,11 @@ export class AppState {
   }
 
   recurReminder(reminder: Reminder): void {
-    let remindTime = getNextTime(reminder);
+    let remindTime: Date | undefined = reminder.timeRepeat
+      ? getNextTime(reminder)
+      : undefined;
     let nextRemindTime: Date | undefined;
-    if (reminder.timeRepeat && isToday(remindTime)) {
+    if (reminder.timeRepeat && isToday(remindTime!)) {
       nextRemindTime = remindTime;
     } else if (reminder.dayRepeat) {
       const nextDay = getNextDay(reminder);
