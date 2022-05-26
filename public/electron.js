@@ -16,6 +16,7 @@ const {
   REACT_DEVELOPER_TOOLS,
   MOBX_DEVTOOLS,
 } = require('electron-devtools-installer');
+const { isDev } = require('../package.json');
 
 electronRemote.initialize();
 
@@ -67,7 +68,8 @@ function createWindow() {
   const indexHtmlUrl = url.pathToFileURL(
     path.resolve(__dirname, './index.html')
   ).href;
-  if (app.isPackaged) {
+  mainWindow.webContents.executeJavaScript(`console.log('is Dev: ${isDev}');`);
+  if (app.isPackaged && !isDev) {
     globalShortcut.register('CommandOrControl+R', () => {});
     mainWindow.setMenu(null);
   } else {
