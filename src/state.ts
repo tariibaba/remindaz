@@ -247,7 +247,7 @@ export class AppState {
         stopped: false,
         tags: [],
       });
-      for (let tag of recurred.tags) {
+      for (let tag of reminder.tags) {
         this._putTag(recurred, tag);
       }
     }
