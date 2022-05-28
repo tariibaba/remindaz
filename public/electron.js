@@ -136,6 +136,7 @@ function initTray() {
   ]);
   tray.on('click', () => {
     getActiveWindow().show();
+    getActiveWindow().webContents.send('refresh-app-state');
   });
   tray.setContextMenu(contextMenu);
 }
