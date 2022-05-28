@@ -102,9 +102,13 @@ export class AppState {
   }
 
   async deleteReminder(reminderId: string): Promise<void> {
-    this.reminderIds = this.reminderIds.filter((id) => id !== reminderId);
-    delete this.allReminders[reminderId];
-    if (this.sidebarReminderInfo === reminderId) this.hideSidebarReminderInfo();
+    runInAction(() => {
+      this.reminderIds = this.reminderIds.filter((id) => id !== reminderId);
+      delete this.allReminders[reminderId];
+      if (this.sidebarReminderInfo === reminderId) {
+        this.hideSidebarReminderInfo();
+      }
+    });
     await this.saveState();
     this.updateWindowBadge();
   }
@@ -175,14 +179,16 @@ export class AppState {
         }
         return value;
       });
-      this.reminderIds = data.reminderIds;
-      this.allReminders = data.allReminders;
-      this.tagNames = data.tagNames;
-      this.allTags = data.allTags;
-      this.appSettings = { ...defaultSettings, ...data.appSettings };
-      this.reminderListOpenGroups = data.reminderListOpenGroups || {};
-      this.selectedDefaultList = data.selectedDefaultList || 'all';
-      this.selectedTag = data.selectedTag;
+      runInAction(() => {
+        this.reminderIds = data.reminderIds;
+        this.allReminders = data.allReminders;
+        this.tagNames = data.tagNames;
+        this.allTags = data.allTags;
+        this.appSettings = { ...defaultSettings, ...data.appSettings };
+        this.reminderListOpenGroups = data.reminderListOpenGroups || {};
+        this.selectedDefaultList = data.selectedDefaultList || 'all';
+        this.selectedTag = data.selectedTag;
+      });
     } catch {
       await this.saveState();
     }
