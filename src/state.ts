@@ -246,6 +246,7 @@ export class AppState {
         remindTime: nextRemindTime!,
         stopped: false,
         tags: [],
+        snoozeRemindTime: undefined,
       });
       for (let tag of reminder.tags) {
         this._putTag(recurred, tag);
