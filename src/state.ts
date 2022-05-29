@@ -348,6 +348,7 @@ export class AppState {
       id: newReminderId,
       stopped: false,
       remindTime: getNextDay(reminder),
+      snoozeRemindTime: undefined,
     };
     this.updateWindowBadge();
     this.saveState();
@@ -363,6 +364,7 @@ export class AppState {
       id: newReminderId,
       stopped: false,
       remindTime: getNextTime(reminder),
+      snoozeRemindTime: undefined,
     };
     this.updateWindowBadge();
     this.saveState();
