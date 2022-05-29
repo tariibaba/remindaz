@@ -18,6 +18,7 @@ import {
   isTomorrow as isDateTomorrow,
   differenceInWeeks,
   startOfWeek,
+  startOfDay,
 } from 'date-fns';
 import { Reminder } from 'types';
 
@@ -79,30 +80,11 @@ export function isTomorrow(reminder: Reminder): boolean {
 
 export function isLater(reminder: Reminder): boolean {
   return (
-    differenceInWeeks(
-      startOfWeek(reminder.remindTime),
-      startOfWeek(new Date())
-    ) > 1
-  );
-}
-
-export function isNextWeek(reminder: Reminder): boolean {
-  return (
-    differenceInWeeks(
-      startOfWeek(reminder.remindTime),
-      startOfWeek(new Date())
-    ) === 1
+    differenceInDays(startOfDay(reminder.remindTime), startOfDay(new Date())) >
+    1
   );
 }
 
 export function isActive(reminder: Reminder): boolean {
   return !reminder.stopped;
-}
-
-export function isLaterThisWeek(reminder: Reminder): boolean {
-  const now = new Date();
-  return (
-    differenceInDays(reminder.remindTime, now) > 1 &&
-    startOfWeek(reminder.remindTime).getTime() === startOfWeek(now).getTime()
-  );
 }

@@ -37,7 +37,5 @@ export type ReminderListGroup =
   | 'Overdue'
   | 'Later today'
   | 'Tomorrow'
-  | 'Later this week'
-  | 'Next week'
   | 'Later'
   | 'Stopped';
