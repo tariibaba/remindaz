@@ -17,6 +17,8 @@ const {
   MOBX_DEVTOOLS,
 } = require('electron-devtools-installer');
 const { isDev } = require('../package.json');
+const minimist = require('minimist');
+const AutoLaunch = require('auto-launch');
 
 electronRemote.initialize();
 
@@ -26,14 +28,12 @@ let tray;
 let miniWindow;
 let miniMode = false;
 let isAppQuiting = false;
+const args = minimist(process.argv.slice(app.isPackaged ? 1 : 2));
 
 if (app.isPackaged) {
   const gotTheLock = app.requestSingleInstanceLock();
-
   if (gotTheLock) {
-    app.on('second-instance', () => {
-      mainWindow?.show();
-    });
+    app.on('second-instance', () => mainWindow?.show());
     app.whenReady().then(createWindow);
   } else {
     isAppQuiting = true;
@@ -58,13 +58,13 @@ function createWindow() {
       nodeIntegration: true,
       contextIsolation: false,
     },
+    show: !args['hidden'],
   });
   badge = new Badge(mainWindow, {
     color: '#0078D4',
     font: '100 10px "Segoe UI"',
   });
   electronRemote.enable(mainWindow.webContents);
-
   const indexHtmlUrl = url.pathToFileURL(
     path.resolve(__dirname, './index.html')
   ).href;
@@ -202,6 +202,12 @@ function getActiveWindow() {
   return miniMode ? miniWindow : mainWindow;
 }
 
-ipcMain.handle('change-run-at-startup', (event, { value }) => {
-  app.setLoginItemSettings({ openAtLogin: value, openAsHidden: value });
+const autoLauncher = new AutoLaunch({
+  name: 'Reminders',
+  path: process.execPath,
+  isHidden: true,
+});
+ipcMain.handle('set-run-at-startup', (event, { value }) => {
+  if (value) autoLauncher.enable();
+  else autoLauncher.disable();
 });

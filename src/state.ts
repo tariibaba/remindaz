@@ -395,7 +395,7 @@ export class AppState {
   }
 
   async setRunAtStartup(value: boolean): Promise<void> {
-    ipcRenderer.invoke('change-run-at-startup', { value });
+    ipcRenderer.invoke('set-run-at-startup', { value });
     runInAction(() => {
       this.appSettings!.runAtStartup = value;
     });
