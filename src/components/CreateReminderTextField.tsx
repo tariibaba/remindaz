@@ -78,22 +78,23 @@ const CreateReminderTextField = observer(() => {
     });
   };
 
-  const [datePickerAnchorEl, setDatePickerAnchorEl] = useState(null);
-  const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [datePickerAnchorEl, setDatePickerAnchorEl] = useState<
+    HTMLElement | undefined
+  >(undefined);
+  const [dateMenuOpen, setDateMenuOpen] = useState(false);
   const [datePickerDate, setDatePickerDate] = useState<Date | undefined>(
     undefined
   );
   const dateButtonClick = (event) => {
     setDatePickerDate(newReminder?.startDate);
     setDatePickerAnchorEl(event.currentTarget);
-    setDatePickerOpen(true);
+    setDateMenuOpen(true);
   };
-  const saveDatePickerDate = () => {
+  const setNewReminderDate = (date: Date) => {
     setNewReminder({
       ...newReminder!,
-      startDate: new Date(datePickerDate?.getTime()!),
+      startDate: new Date(date),
     });
-    setDatePickerOpen(false);
   };
   const [newReminder, setNewReminder] = useState<
     Omit<Reminder, 'id'> | undefined
@@ -230,15 +231,11 @@ const CreateReminderTextField = observer(() => {
         }}
       />
       <ReminderDatePicker
-        popoverProps={{
-          open: datePickerOpen,
-          anchorEl: datePickerAnchorEl,
-          onClose: () => setDatePickerOpen(false),
-        }}
-        onSave={() => saveDatePickerDate()}
-        onCancel={() => setDatePickerOpen(false)}
         date={datePickerDate}
-        onChange={(newDate) => setDatePickerDate(new Date(newDate))}
+        onChange={(newDate) => setNewReminderDate(newDate)}
+        onClose={() => setDateMenuOpen(false)}
+        open={dateMenuOpen}
+        anchorEl={datePickerAnchorEl}
       />
       <ReminderTimePicker
         popoverProps={{

@@ -85,7 +85,9 @@ const ReminderInfoSidebar = () => {
     }
   };
 
-  const [datePickerAnchorEl, setDatePickerAnchorEl] = useState(null);
+  const [datePickerAnchorEl, setDatePickerAnchorEl] = useState<
+    HTMLElement | undefined
+  >(undefined);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [datePickerDate, setDatePickerDate] = useState<Date | undefined>(
     undefined
@@ -380,15 +382,11 @@ const ReminderInfoSidebar = () => {
         />
       </div>
       <ReminderDatePicker
-        popoverProps={{
-          open: datePickerOpen,
-          anchorEl: datePickerAnchorEl,
-          onClose: () => setDatePickerOpen(false),
-        }}
-        onSave={() => saveDatePickerDate()}
-        onCancel={() => setDatePickerOpen(false)}
+        open={datePickerOpen}
+        anchorEl={datePickerAnchorEl}
         date={datePickerDate}
         onChange={(newDate) => setDatePickerDate(new Date(newDate))}
+        onClose={() => setDatePickerOpen(false)}
       />
       <ReminderTimePicker
         popoverProps={{
