@@ -17,7 +17,7 @@ import {
   Alarm as AlarmIcon,
 } from '@mui/icons-material';
 import { ipcRenderer } from 'electron';
-import { isToday } from 'date-fns';
+import { isDue, isToday } from 'utils/reminder';
 
 function endMiniMode() {
   ipcRenderer.invoke('mini-mode-end');
@@ -50,7 +50,8 @@ const MiniMode = observer(() => {
           {state.reminderIds
             .map((id) => state.allReminders[id])
             .filter(
-              (reminder) => !reminder.stopped || reminder.remindTime > now
+              (reminder) =>
+                isDue(reminder) || (!reminder.stopped && isToday(reminder))
             )
             .sort(
               (reminder1, reminder2) =>
