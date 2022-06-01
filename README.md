@@ -36,16 +36,18 @@ All feedback and suggestions are welcome. You can send one by creating a [new is
 
 Fork the repo and clone your fork:
 
-```git clone https://github.com/<<<your-github-account>>>/beveldm```
+```console
+git clone https://github.com/<<<your-github-account>>>/beveldm
+```
 
 Go to the project folder in a terminal instance and install dependences:
 
-```yarn install```
+```console
+yarn install
+```
 
-Start React:
+Start the React server and Electron:
 
-```yarn rstart```
-
-Start Electron in a new terminal instance:
-
-```yarn dev```
+```console
+yarn start
+```
