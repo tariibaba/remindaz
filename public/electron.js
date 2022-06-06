@@ -103,7 +103,7 @@ ipcMain.handle('notify', (event, args) => {
     if (type === 'reminder') {
       notifier.notify(
         {
-          // appName: 'com.tariibaba.reminders',
+          // appName: 'com.tariibaba.remindaz',
           title,
           message: ' ',
           actions: [repeats ? 'Fast forward' : 'Stop'],
@@ -206,7 +206,7 @@ function getActiveWindow() {
 }
 
 const autoLauncher = new AutoLaunch({
-  name: 'Reminders',
+  name: 'Remindaz',
   path: process.execPath,
   isHidden: true,
 });

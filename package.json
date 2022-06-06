@@ -1,5 +1,5 @@
 {
-  "name": "reminders",
+  "name": "remindaz",
   "version": "0.1.1",
   "private": true,
   "main": "public/electron.js",
@@ -10,10 +10,10 @@
     "url": "https://github.com/tariibaba"
   },
   "build": {
-    "appId": "com.tariibaba.reminders",
+    "appId": "com.tariibaba.remindaz",
     "icon": "public/logo.png",
-    "productName": "Reminders",
-    "artifactName": "Reminders-Installer-${version}-${os}-${arch}.${ext}",
+    "productName": "Remindaz",
+    "artifactName": "Remindaz-Installer-${version}-${os}-${arch}.${ext}",
     "files": [
       "build/**/*",
       "node_modules/**/*"

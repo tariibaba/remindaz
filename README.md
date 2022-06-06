@@ -1,12 +1,12 @@
-# Reminders
+# Remindaz
 
 Beautiful cross-platform app to store all information (tasks, events, etc.) you need to remember.
 
-![A screenshot of Reminders](media/screenshot-1.png)
+![A screenshot of Remindaz](media/screenshot-1.png)
 
-## How is Reminders Different from a To-do List App?
+## How is Remindaz Different from a To-do List App?
 
-Reminders is focused on **reminders**, not tasks. There is no concept of task completion or sub-tasks. Every reminder you add has to have a defined date and time for your being notified. When a reminder is due, you can stop it or you can let it "snooze" periodically for as long as you want.
+Remindaz is focused on **reminders**, not tasks. There is no concept of task completion or sub-tasks. Every reminder you add has to have a defined date and time for your being notified. When a reminder is due, you can stop it or you can let it "snooze" periodically for as long as you want.
 
 ## Features
 - Beautiful and clean user interface.
@@ -30,7 +30,7 @@ Reminders is focused on **reminders**, not tasks. There is no concept of task co
 
 ## Contributing
 
-All feedback and suggestions are welcome. You can send one by creating a [new issue](https://github.com/tariibaba/reminders/issues/new).
+All feedback and suggestions are welcome. You can send one by creating a [new issue](https://github.com/tariibaba/remindaz/issues/new).
 
 ### Running from Source
 
