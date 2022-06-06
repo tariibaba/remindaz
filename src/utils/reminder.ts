@@ -55,6 +55,7 @@ export function getNextDay(reminder: Reminder): Date {
 
 export function getNextTime(reminder: Reminder): Date {
   let nextTime = reminder.remindTime;
+  const formerRemindTimeDay = startOfDay(nextTime);
   const timeRepeat = reminder.timeRepeat!;
   const add = {
     minute: addMinutes,
@@ -63,6 +64,10 @@ export function getNextTime(reminder: Reminder): Date {
   do {
     nextTime = add(nextTime, timeRepeat.num);
   } while (isDatePast(nextTime));
+  const newRemindTimeDay = startOfDay(nextTime);
+  if (differenceInDays(newRemindTimeDay, formerRemindTimeDay) !== 0) {
+    nextTime = getNextDay(reminder);
+  }
   return nextTime;
 }
 

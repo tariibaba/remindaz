@@ -99,23 +99,26 @@ ipcMain.on('getUserDataPath', (event) => {
 
 ipcMain.handle('notify', (event, args) => {
   return new Promise((resolve, reject) => {
-    const { type, title } = args;
+    const { type, title, repeats } = args;
     if (type === 'reminder') {
       notifier.notify(
         {
           // appName: 'com.tariibaba.reminders',
           title,
           message: ' ',
-          actions: ['Stop reminder'],
+          actions: [repeats ? 'Fast forward' : 'Stop'],
           wait: true,
           icon: path.join(__dirname, 'logo.png'),
         },
         (err, res, metadata) => {
-          const stopReminder = metadata.activationType === 'Stop reminder';
+          const button1Actions = ['Stop', 'Fast forward'];
           if (metadata.activationType === 'clicked') {
             getActiveWindow().show();
           }
-          resolve({ stopReminder });
+          resolve({
+            stopReminder: metadata.activationType === button1Actions[0],
+            fastForwardReminder: metadata.activationType === button1Actions[1],
+          });
         }
       );
     }

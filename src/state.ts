@@ -78,19 +78,6 @@ export class AppState {
   }
 
   createReminder(options: Omit<Reminder, 'id'>) {
-    const reminder = this.makeReminder(options);
-    if (this.selectedTag) {
-      this._putTag(reminder, this.selectedTag);
-    }
-    reminder.stopped = isPast(reminder);
-    if (isPast(reminder) && (reminder.dayRepeat || reminder.timeRepeat)) {
-      this.recurReminder(reminder);
-    }
-    this.updateWindowBadge();
-    this.saveState();
-  }
-
-  makeReminder(options: Omit<Reminder, 'id'>): Reminder {
     const id = v4();
     this.reminderIds.push(id);
     this.allReminders[id] = {
@@ -98,7 +85,15 @@ export class AppState {
       id,
       tags: [],
     };
-    return this.allReminders[id];
+    const reminder = this.allReminders[id];
+    if (this.selectedTag) {
+      this._putTag(reminder, this.selectedTag);
+    }
+    if (isPast(reminder) && (reminder.dayRepeat || reminder.timeRepeat)) {
+      this.recurReminder(reminder);
+    }
+    this.updateWindowBadge();
+    this.saveState();
   }
 
   async deleteReminder(reminderId: string): Promise<void> {
@@ -209,21 +204,22 @@ export class AppState {
   checkIfReminderDue(reminder: Reminder) {
     const remindTimeDue = !reminder.snoozeRemindTime && isDue(reminder);
     if (remindTimeDue || isSnoozeDue(reminder)) {
-      if (remindTimeDue && isRecurring(reminder)) {
-        this.recurReminder(reminder);
-      }
       this.snoozeReminder(reminder);
       this.sendNotification(reminder);
     }
   }
 
   async sendNotification(reminder: Reminder) {
-    const { stopReminder } = await ipcRenderer.invoke('notify', {
+    const result = await ipcRenderer.invoke('notify', {
       type: 'reminder',
       title: reminder.title,
+      repeats: Boolean(reminder.timeRepeat || reminder.dayRepeat),
     });
-    if (stopReminder) {
-      this.stopReminder(reminder.id);
+    const { stopReminder, fastForwardReminder } = result;
+    if (stopReminder) this.stopReminder(reminder.id);
+    if (fastForwardReminder) {
+      if (reminder.timeRepeat) this.fastForwardTime(reminder.id);
+      else if (reminder.dayRepeat) this.fastForwardDay(reminder.id);
     }
     this.saveState();
   }
@@ -247,16 +243,8 @@ export class AppState {
     }
 
     if (nextRemindTime) {
-      const recurred = this.makeReminder({
-        ...reminder,
-        remindTime: nextRemindTime!,
-        stopped: false,
-        tags: [],
-        snoozeRemindTime: undefined,
-      });
-      for (let tag of reminder.tags) {
-        this._putTag(recurred, tag);
-      }
+      reminder.remindTime = nextRemindTime!;
+      reminder.stopped = false;
     }
 
     this.saveState();
@@ -274,6 +262,7 @@ export class AppState {
     this.allReminders[reminderId].stopped = false;
     const reminder = this.allReminders[reminderId];
     if (isPast(reminder)) this.snoozeReminder(reminder);
+    else reminder.snoozeRemindTime = undefined;
     this.updateWindowBadge();
     this.saveState();
   }
@@ -340,32 +329,16 @@ export class AppState {
 
   fastForwardDay(reminderId: string): void {
     const reminder = this.allReminders[reminderId];
-    reminder.stopped = true;
-    const newReminderId = v4();
-    this.reminderIds.push(newReminderId);
-    this.allReminders[newReminderId] = {
-      ...reminder,
-      id: newReminderId,
-      stopped: false,
-      remindTime: getNextDay(reminder),
-      snoozeRemindTime: undefined,
-    };
+    reminder.remindTime = getNextDay(reminder);
+    reminder.snoozeRemindTime = undefined;
     this.updateWindowBadge();
     this.saveState();
   }
 
   fastForwardTime(reminderId: string): void {
     const reminder = this.allReminders[reminderId];
-    reminder.stopped = true;
-    const newReminderId = v4();
-    this.reminderIds.push(newReminderId);
-    this.allReminders[newReminderId] = {
-      ...reminder,
-      id: newReminderId,
-      stopped: false,
-      remindTime: getNextTime(reminder),
-      snoozeRemindTime: undefined,
-    };
+    reminder.remindTime = getNextTime(reminder);
+    reminder.snoozeRemindTime = undefined;
     this.updateWindowBadge();
     this.saveState();
   }
