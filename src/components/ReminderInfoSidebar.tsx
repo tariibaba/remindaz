@@ -97,8 +97,8 @@ const ReminderInfoSidebar = () => {
     setDatePickerAnchorEl(event.currentTarget);
     setDatePickerOpen(true);
   };
-  const saveDatePickerDate = () => {
-    state.editReminder(reminder?.id!, { startDate: new Date(datePickerDate!) });
+  const setReminderStartDate = (newDate: Date) => {
+    state.editReminder(reminder?.id!, { startDate: newDate });
     setDatePickerOpen(false);
   };
 
@@ -385,7 +385,7 @@ const ReminderInfoSidebar = () => {
         open={datePickerOpen}
         anchorEl={datePickerAnchorEl}
         date={datePickerDate}
-        onChange={(newDate) => setDatePickerDate(new Date(newDate))}
+        onChange={(newDate) => setReminderStartDate(newDate)}
         onClose={() => setDatePickerOpen(false)}
       />
       <ReminderTimePicker
