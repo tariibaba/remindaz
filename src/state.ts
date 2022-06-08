@@ -161,8 +161,8 @@ export class AppState {
   }
 
   async loadState() {
-    const jsonString = (await fs.readFile(filePath)).toString();
     try {
+      const jsonString = (await fs.readFile(filePath)).toString();
       const data = JSON.parse(jsonString, (key, value) => {
         if (
           ['startDate', 'startTime', 'remindTime', 'snoozeRemindTime'].includes(
