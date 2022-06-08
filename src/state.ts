@@ -309,6 +309,7 @@ export class AppState {
     this.allReminders[id] = { ...this.allReminders[id], ...info };
     const reminder = this.allReminders[id];
     if (info.startDate || info.startTime) {
+      reminder.snoozeRemindTime = undefined;
       const startDate = info.startDate || reminder.startDate;
       const startTime = info.startTime || reminder.startTime;
       let newRemindTime = setDate(reminder.startDate, getDate(startDate));
