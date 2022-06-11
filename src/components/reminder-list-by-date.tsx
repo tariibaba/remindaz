@@ -2,6 +2,7 @@ import React from 'react';
 import { Reminder, ReminderListGroup as ReminderListGroupType } from '../types';
 import { isDue, isLater, isPast, isToday, isTomorrow } from 'utils/reminder';
 import ReminderListGroup from './reminder-list-group';
+import { observer } from 'mobx-react';
 
 type ReminderListByDateProps = {
   reminders: Reminder[];
@@ -50,4 +51,4 @@ const ReminderListByDate = (props: ReminderListByDateProps) => {
   );
 };
 
-export default ReminderListByDate;
+export default observer(ReminderListByDate);
