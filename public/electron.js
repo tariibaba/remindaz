@@ -33,7 +33,10 @@ const args = minimist(process.argv.slice(app.isPackaged ? 1 : 2));
 if (app.isPackaged) {
   const gotTheLock = app.requestSingleInstanceLock();
   if (gotTheLock) {
-    app.on('second-instance', () => mainWindow?.show());
+    app.on('second-instance', () => {
+      getActiveWindow()?.show();
+      refreshAppState();
+    });
     app.whenReady().then(createWindow);
   } else {
     isAppQuiting = true;
