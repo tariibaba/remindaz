@@ -30,7 +30,7 @@ let miniMode = false;
 let isAppQuiting = false;
 const args = minimist(process.argv.slice(app.isPackaged ? 1 : 2));
 
-if (app.isPackaged) {
+if (app.isPackaged || args['si']) {
   const gotTheLock = app.requestSingleInstanceLock();
   if (gotTheLock) {
     app.on('second-instance', () => {
