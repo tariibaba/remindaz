@@ -37,7 +37,7 @@ All feedback and suggestions are welcome. You can send one by creating a [new is
 Fork the repo and clone your fork:
 
 ```console
-git clone https://github.com/<<<your-github-account>>>/beveldm
+git clone https://github.com/<<<your-github-account>>>/remindaz
 ```
 
 Go to the project folder in a terminal instance and install dependences:
