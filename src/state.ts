@@ -38,7 +38,7 @@ import {
   isPast,
   isRecurring,
   isSnoozeDue,
-  shouldReminde as shouldRemind,
+  shouldRemind as shouldRemind,
 } from 'utils/reminder';
 
 const dataPath = ipcRenderer.sendSync('getUserDataPath');
@@ -214,18 +214,10 @@ export class AppState {
   }
 
   async sendNotification(reminder: Reminder) {
-    const result = await ipcRenderer.invoke('notify', {
+    await ipcRenderer.invoke('notify', {
       type: 'reminder',
       title: reminder.title,
-      repeats: Boolean(reminder.timeRepeat || reminder.dayRepeat),
     });
-    const { stopReminder, fastForwardReminder } = result;
-    if (stopReminder) this.stopReminder(reminder.id);
-    if (fastForwardReminder) {
-      if (reminder.timeRepeat) this.fastForwardTime(reminder.id);
-      else if (reminder.dayRepeat) this.fastForwardDay(reminder.id);
-    }
-    this.saveState();
   }
 
   snoozeReminder(reminder: Reminder): void {
