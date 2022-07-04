@@ -32,8 +32,6 @@ export function isDue(reminder: Reminder): boolean {
 }
 
 export function shouldRemind(reminder: Reminder): boolean {
-  console.log(reminder.lastReminded);
-  console.log(isBefore(reminder.lastReminded!, reminder.remindTime));
   return (
     isDue(reminder) &&
     (reminder.lastReminded
