@@ -16,10 +16,7 @@ const {
   REACT_DEVELOPER_TOOLS,
   MOBX_DEVTOOLS,
 } = require('electron-devtools-installer');
-const {
-  isDev,
-  build: { appId },
-} = require('../package.json');
+const { isDev } = require('../package.json');
 const minimist = require('minimist');
 const AutoLaunch = require('auto-launch');
 const { format } = require('date-fns');
@@ -34,7 +31,6 @@ let miniMode = false;
 let isAppQuiting = false;
 const args = minimist(process.argv.slice(app.isPackaged ? 1 : 2));
 
-app.setAppUserModelId(appId);
 if (app.isPackaged || args['si']) {
   const gotTheLock = app.requestSingleInstanceLock();
   if (gotTheLock) {
