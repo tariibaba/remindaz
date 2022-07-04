@@ -208,8 +208,11 @@ export class AppState {
 
   checkIfReminderDue(reminder: Reminder) {
     if (shouldRemind(reminder)) {
-      reminder.lastReminded = new Date();
       this.sendNotification(reminder);
+      reminder.lastReminded = new Date();
+      if (isRecurring(reminder)) {
+        this.recurReminder(reminder);
+      }
     }
   }
 
