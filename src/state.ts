@@ -38,6 +38,7 @@ import {
   isPast,
   isRecurring,
   isSnoozeDue,
+  shouldReminde as shouldRemind,
 } from 'utils/reminder';
 
 const dataPath = ipcRenderer.sendSync('getUserDataPath');
@@ -165,9 +166,13 @@ export class AppState {
       const jsonString = (await fs.readFile(filePath)).toString();
       const data = JSON.parse(jsonString, (key, value) => {
         if (
-          ['startDate', 'startTime', 'remindTime', 'snoozeRemindTime'].includes(
-            key
-          )
+          [
+            'startDate',
+            'startTime',
+            'remindTime',
+            'snoozeRemindTime',
+            'lastReminded',
+          ].includes(key)
         ) {
           const date = new Date(value);
           return date;
@@ -202,9 +207,8 @@ export class AppState {
   }
 
   checkIfReminderDue(reminder: Reminder) {
-    const remindTimeDue = !reminder.snoozeRemindTime && isDue(reminder);
-    if (remindTimeDue || isSnoozeDue(reminder)) {
-      this.snoozeReminder(reminder);
+    if (shouldRemind(reminder)) {
+      reminder.lastReminded = new Date();
       this.sendNotification(reminder);
     }
   }

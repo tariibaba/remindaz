@@ -19,6 +19,7 @@ import {
   differenceInWeeks,
   startOfWeek,
   startOfDay,
+  isBefore,
 } from 'date-fns';
 import { Reminder } from 'types';
 
@@ -28,6 +29,15 @@ export function isPast(reminder: Reminder): boolean {
 
 export function isDue(reminder: Reminder): boolean {
   return !reminder.stopped && isPast(reminder);
+}
+
+export function shouldReminde(reminder: Reminder): boolean {
+  return (
+    isDue(reminder) &&
+    (reminder.lastReminded
+      ? isBefore(reminder.lastReminded, reminder.remindTime)
+      : true)
+  );
 }
 
 export function isSnoozeDue(reminder: Reminder): boolean {

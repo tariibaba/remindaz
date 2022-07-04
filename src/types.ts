@@ -12,6 +12,7 @@ export type Reminder = {
   /** Time to remind when user didn't click button to acknowledge reminder. */
   snoozeRemindTime?: Date;
   tags: string[];
+  lastReminded?: Date;
 };
 
 export type WindowMode = 'default' | 'mini';
