@@ -42,11 +42,14 @@ function getDefaultNewReminder(): Omit<Reminder, 'id'> {
 const CreateReminderTextField = observer(() => {
   const prevNewReminderTitle = useRef<string>('');
   const onInputChange = (event) => {
-    const value = event.target.value;
+    changeReminderTitle(event.target.value);
+  };
+
+  const changeReminderTitle = (newTitle: string) => {
     if (!prevNewReminderTitle.current) {
-      setNewReminder({ ...getDefaultNewReminder(), title: value });
-    } else setNewReminder({ ...newReminder!, title: value });
-    prevNewReminderTitle.current = value;
+      setNewReminder({ ...getDefaultNewReminder(), title: newTitle });
+    } else setNewReminder({ ...newReminder!, title: newTitle });
+    prevNewReminderTitle.current = newTitle;
   };
 
   const saveTimePickerTime = () => {
@@ -104,8 +107,9 @@ const CreateReminderTextField = observer(() => {
 
   const createReminder = () => {
     state.createReminder({ ...newReminder! });
-    setNewReminder({ ...getDefaultNewReminder() });
+    changeReminderTitle('');
   };
+
   useEffect(() => {
     if (newReminder) {
       setNewReminder({
