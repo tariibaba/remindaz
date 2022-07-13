@@ -114,7 +114,7 @@ ipcMain.handle('notify', (event, args) => {
           icon: path.join(__dirname, 'logo.png'),
         },
         (err, res, metadata) => {
-          getActiveWindow().show();
+          // getActiveWindow().show();
           resolve();
         }
       );
